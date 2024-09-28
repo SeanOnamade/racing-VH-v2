@@ -10,12 +10,13 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ['3.9', '3.10', '3.11']
-      fail-fast: false   # this needs to be outside the matrix definition
+      fail-fast: false
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v2
@@ -30,14 +31,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install pytest
 
-      - name: Run tests
+      - name: Run main test runner
         run: |
-          pytest src/testing/car_test.py --junitxml=car_test_run.xml
-        continue-on-error: true
+          python src/testing/main_test.py --junitxml=main_test_run.xml
 
       - name: Upload Test Results
         if: always()
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3  # Updated to v3
         with:
           name: test-results-${{ matrix.os }}-${{ matrix.python-version }}
-          path: car_test_run.xml
+          path: main_test_run.xml
