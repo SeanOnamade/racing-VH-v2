@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import RacingLines from './pages/racingLineCreation/racingLines';
-import ValidTrack from './pages/racingLineCreation/validTrack'
+import ValidTrack from './pages/racingLineCreation/validTrack';
 
 // Main App component
 function App() {
