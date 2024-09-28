@@ -10,7 +10,7 @@ on:
 
 jobs:
   test:
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
@@ -29,3 +29,4 @@ jobs:
     - name: Run tests
       run: |
         pytest src/testing/car_test.py
+      displayName: Python Tests on Multiple OS (${{ matrix.os }}, ${{ matrix.python-version }})
