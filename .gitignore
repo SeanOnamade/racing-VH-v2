@@ -1,2 +1,5 @@
 dist/
 .env
+.idea
+.vscode
+src/__pycahce__/
