@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
 import RacingLines from './pages/racingLineCreation/racingLines';
+import ValidTrack from './pages/racingLineCreation/validTrack'
 
 // Main App component
 function App() {
@@ -29,10 +30,8 @@ function App() {
             </div>
           }
         />
-
-        {/* Ethan page route - Using RacingLines component */}
         <Route path="/ethan" element={<RacingLines />} />
-        <Route path="/ethan/validTrack" element={<RacingLines />} />
+        <Route path="/ethan/validTrack" element={<ValidTrack />} />
       </Routes>
     </Router>
   );
