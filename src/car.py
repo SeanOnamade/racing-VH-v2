@@ -168,6 +168,8 @@ class Car:
             self.velocity = 0
 
         if self.velocity > 0:
+            if self.steering_angle == 0.0:
+                self.steering_angle = 0.01  # Ensure minimal steering
             K = self.calculateUndersteerGradient()
             adjustedSteeringAngle = self.steering_angle * (1 + K)
 
@@ -208,7 +210,7 @@ class Car:
     # @params: deltaTime - time step in seconds
     # @returns: None
     def updateTireTemperature(self, deltaTime):
-        tempIncrease = (abs(self.steering_angle) * self.velocity) * 0.05 * deltaTime
+        tempIncrease = (abs(self.steering_angle) + 0.1) * self.velocity * 0.05 * deltaTime
         tempDecrease = (self.tireTemperature - 20.0) * 0.1 * deltaTime
         self.tireTemperature += tempIncrease - tempDecrease
         if self.tireTemperature < 20.0:
@@ -224,7 +226,7 @@ class Car:
         temperatureEffect = max(0.5, 1 - (tempDifference / 100))
 
         speedEffect = max(0.7, 1 - (self.velocity / self.maxVelocity) * 0.3)
-        steeringEffect = max(0.7, 1 - (abs(self.steering_angle) / self.max_steering_angle) * 0.3)
+        steeringEffect = max(0.7, 1 - ((abs(self.steering_angle) + 0.1) / self.max_steering_angle) * 0.3)
 
         self.tireGrip = self.base_tireGrip * temperatureEffect * speedEffect * steeringEffect
         if self.tireGrip < self.minTireGrip:
@@ -237,7 +239,7 @@ class Car:
     #          deltaTime - time step in seconds
     # @returns: None
     def applyTireStress(self, steeringAngle, velocity, deltaTime):
-        stressFactor = abs(steeringAngle) * velocity
+        stressFactor = (abs(steeringAngle) + 0.1) * velocity
         decayAmount = stressFactor * self.gripDecayRate * deltaTime
         self.tireGrip -= decayAmount
         if self.tireGrip < self.minTireGrip:
