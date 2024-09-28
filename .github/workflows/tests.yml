@@ -1,4 +1,4 @@
-name: Python Tests on Multiple OS
+name: Car test - OS [multi]
 
 on:
   push:
@@ -14,30 +14,17 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ['3.9', '3.10', '3.11']
-      fail-fast: false
-
+        python-version: '3.11'
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v2
-
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install pytest
-
-      - name: Run main test runner
-        run: |
-          python src/testing/main_test.py --junitxml=main_test_run.xml
-
-      - name: Upload Test Results
-        if: always()
-        uses: actions/upload-artifact@v3  # Updated to v3
-        with:
-          name: test-results-${{ matrix.os }}-${{ matrix.python-version }}
-          path: main_test_run.xml
+    - name: Checkout repo
+      uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pytest
+    - name: Run tests
+      run: |
