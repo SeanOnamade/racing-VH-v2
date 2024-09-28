@@ -2,22 +2,14 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
+import RacingLines from '../pages/racingLineCreation/racingLine';
 
-// New Ethan component for /ethan route
-const EthanPage: React.FC = () => {
-  return (
-    <div>
-      <h1>Welcome to Ethan's Page!</h1>
-      <p>This is the page you see when you navigate to /ethan.</p>
-    </div>
-  );
-};
-
+// Main App component
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Default App route */}
+        {/* Default Route - Home Page */}
         <Route
           path="/"
           element={
@@ -38,8 +30,8 @@ function App() {
           }
         />
 
-        {/* Ethan page route */}
-        <Route path="/ethan" element={<EthanPage />} />
+        {/* Ethan page route - Using RacingLines component */}
+        <Route path="/ethan" element={<RacingLines />} />
       </Routes>
     </Router>
   );
