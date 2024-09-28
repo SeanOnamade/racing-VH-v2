@@ -27,6 +27,6 @@ jobs:
         python -m pip install --upgrade pip
         pip install pytest
     - name: Run tests
+      displayName: Python Tests on Multiple OS (${{ matrix.os }}, ${{ matrix.python-version }})
       run: |
         pytest src/testing/car_test.py
-      displayName: Python Tests on Multiple OS (${{ matrix.os }}, ${{ matrix.python-version }})
