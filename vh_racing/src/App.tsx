@@ -32,6 +32,7 @@ function App() {
 
         {/* Ethan page route - Using RacingLines component */}
         <Route path="/ethan" element={<RacingLines />} />
+        <Route path="/ethan/validTrack" element={<RacingLines />} />
       </Routes>
     </Router>
   );
