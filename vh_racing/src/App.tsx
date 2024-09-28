@@ -31,6 +31,7 @@ function App() {
           }
         />
         <Route path="/ethan" element={<RacingLines />} />
+        <Route path="/zander" element={<RacingLines />} />
         <Route path="/ethan/validTrack" element={<ValidTrack />} />
       </Routes>
     </Router>
