@@ -185,7 +185,7 @@ const TrackDrawingApp = () => {
 
   // Render the component
   return (
-    <div>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       <canvas
         ref={canvasRef} // Reference to the canvas element
         width={800} // Set canvas width
@@ -193,21 +193,31 @@ const TrackDrawingApp = () => {
         onMouseDown={handleMouseDown} // Mouse down event handler
         onMouseUp={handleMouseUp} // Mouse up event handler
         onMouseMove={handleMouseMove} // Mouse move event handler
-        style={{ border: '1px solid black' }} // Canvas styling
+        style={{ border: '1px solid black', marginBottom: '20px' }} // Canvas styling
       />
-      <button onClick={saveTrack}>Save Track</button> {/* Button to save track */}
-      <button onClick={() => document.getElementById('fileInput').click()}>Load Track</button> {/* Button to trigger file input */}
-      <input
-        type="file"
-        id="fileInput"
-        accept=".json" // Accept only JSON files
-        onChange={loadTrack} // File change event handler
-        style={{ display: 'none' }} // Hide the file input
-      />
-      <button onClick={resetTrack}>Reset Track</button> {/* Button to reset track */}
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button onClick={saveTrack} style={buttonStyle}>Save Track</button> {/* Button to save track */}
+        <label style={buttonStyle}>
+          Load Track
+          <input type="file" onChange={loadTrack} style={{ display: 'none' }} /> {/* File input for loading track */}
+        </label>
+        <button onClick={resetTrack} style={buttonStyle}>Reset</button> {/* Button to reset track */}
+      </div>
     </div>
   );
 };
 
-// Export the component as default
+// Button style as a rectangle with text
+const buttonStyle = {
+  backgroundColor: 'green',
+  color: 'white',
+  padding: '10px 20px',
+  border: 'none',
+  borderRadius: '5px',
+  cursor: 'pointer',
+  fontSize: '16px',
+  textAlign: 'center',
+};
+
+// Export the TrackDrawingApp component as default
 export default TrackDrawingApp;
