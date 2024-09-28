@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import logo from './logo.svg';
 import './App.css';
-import RacingLines from './pages/racingLineCreation/racingLine';
+import RacingLines from './pages/racingLineCreation/racingLines';
 
 // Main App component
 function App() {
