@@ -110,7 +110,6 @@ const TrackDrawingApp = () => {
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
 
       track.closeTrack();
-      track.addPoint(pos); // Add the final point
       track.closeTrack(); // Close the track by connecting the last point to the first
       setTrackDrawnYet(true);
       setTrack(prevTrack => {
