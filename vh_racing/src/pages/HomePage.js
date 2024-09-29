@@ -37,7 +37,7 @@ const HomePage = () => {
           Welcome to Doodle Racing! The place where you can create the (pixelated!) racetrack of your dreams.
         </p>
         <p className="text-md text-gray-500 mb-8">
-          All your racing desires can come true. Make a circle track, or a track shaped like the Mona Lisa—THE WORLD (this canvas!) IS YOUR CANVAS!
+          All your racing desires can come true. Make a circle track, or a track shaped like the Mona-Lisa THE WORLD (this webApp!) IS YOUR CANVAS!
         </p>
 
         <div className="flex space-x-4 mt-12">

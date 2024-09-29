@@ -79,9 +79,8 @@ const TrackDrawingApp = () => {
   const [mousePos, setMousePos] = useState([0, 0]);
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [reloadTracks, setReloadTracks] = useState(false); // State to trigger reloading the track list
-  const [savedYet, setSavedYet] = useState(false); // Initialize savedYet // accepted
-  const navigate = useNavigate(); // accepted
-  
+  const [savedYet, setSavedYet] = useState(false); // Initialize savedYet
+  const navigate = useNavigate();
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -138,7 +137,7 @@ const TrackDrawingApp = () => {
   };
 
   const saveTrack = async () => {
-    if (savedYet) return; // ADDED!
+    if (savedYet) return;
     const { filename, trackData } = track.save();
     const token = localStorage.getItem('token');
 
@@ -147,17 +146,17 @@ const TrackDrawingApp = () => {
       return;
     }
     else {
-      console.log('Token is present!')
+      console.log('Token is present!');
     }
-  
+
     console.log('Token:', token);
 
     try {
       const wrappedData = {
-        trackData: trackData, // Wrap trackData with the key "trackData"
+        trackData: trackData,
       };
 
-      await axios.post('http://localhost:5000/api/tracks/save', wrappedData , {
+      await axios.post('http://localhost:5000/api/tracks/save', wrappedData, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -169,7 +168,7 @@ const TrackDrawingApp = () => {
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
-      setSavedYet(true); // ADDED
+      setSavedYet(true);
       setReloadTracks(!reloadTracks);
     } catch (error) {
       console.error('Failed to save track:', error);
@@ -178,54 +177,40 @@ const TrackDrawingApp = () => {
 
   const loadTrackFromDB = (event) => {
     const trackData = event.target.files[0];
-  
-  
-    // Check if trackData is in old or new format
+
     if (trackData && trackData.track) {
-      // Old format
-      console.log('Loaded trackData from DB (old format):', trackData);
       const loadedTrack = new Track(
-        trackData.streetDiameter || 20, // Default streetDiameter if not provided
-        trackData.track.map(point => [point.x, point.y]) // Map track points
+        trackData.streetDiameter || 20,
+        trackData.track.map(point => [point.x, point.y])
       );
-      setTrack(loadedTrack); // Update the state with the new track
-      setTrackDrawnYet(true); // Set to true after loading
+      setTrack(loadedTrack);
+      setTrackDrawnYet(true);
     } else if (trackData && trackData.trackData && trackData.trackData.track) {
-      // New format
-      console.log('Loaded trackData from DB (new format):', trackData);
       const loadedTrack = new Track(
-        trackData.trackData.streetDiameter || 20, // Default streetDiameter if not provided
-        trackData.trackData.track.map(point => [point.x, point.y]) // Map track points
+        trackData.trackData.streetDiameter || 20,
+        trackData.trackData.track.map(point => [point.x, point.y])
       );
-      setTrack(loadedTrack); // Update the state with the new track
-      setTrackDrawnYet(true); // Set to true after loading
+      setTrack(loadedTrack);
+      setTrackDrawnYet(true);
     } else {
       console.error('Invalid track data', trackData);
     }
   };
-  
 
   const loadTrackFromFile = (event) => {
     const file = event.target.files[0];
-  
-  
+
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
-  
-  
-        // Check if the file contains old or new format
+
         if (data && data.track) {
-          // Old format
-          console.log('Loaded track from file (old format):', data);
           const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
           setTrack(loadedTrack);
           setTrackDrawnYet(true);
           setSavedYet(true);
         } else if (data && data.trackData && data.trackData.track) {
-          // New format
-          console.log('Loaded track from file (new format):', data);
           const loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map(point => [point.x, point.y]));
           setTrack(loadedTrack);
           setTrackDrawnYet(true);
@@ -233,75 +218,57 @@ const TrackDrawingApp = () => {
         } else {
           console.error('Invalid track data', data);
         }
-  
-  
+
         event.target.value = null;
       };
-  
-  
+
       reader.readAsText(file);
     }
   };
-  
 
   const resetTrack = () => {
     track.clear();
     setTrack(new Track(track.streetDiameter));
     setTrackDrawnYet(false);
-    setSavedYet(false); // ADDED
+    setSavedYet(false);
   };
 
-  const handleValidateTrack = () => { // ADDED
-    saveTrack(); // Save the track file when validating
+  const handleValidateTrack = () => {
+    saveTrack();
     navigate('/race');
   };
 
   return (
     <div className='transform scale-90'>
-    <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
-      <div className='flex flex-col items-start max-h-screen overflow-auto '>
-        <canvas
-          ref={canvasRef}
-          width={800}
-          height={600}
-          onMouseDown={handleMouseDown}
-          onMouseMove={handleMouseMove}
-          className='rounded-lg'
-          style={{ border: '1px solid black', marginBottom: '20px' }}
-        />
-        <div className='flex gap-5 items-start'>
-          <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
-            Save Track
-          </button>
-          {/* <button onClick={saveTrack} style={buttonStyle}>Save Track</button> */}
-          <label style={buttonStyle}>
-            Load Track
-            <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
-          </label>
-          <button onClick={resetTrack} style={{
-             backgroundColor: 'green',
-             color: 'white',
-             padding: '10px 20px',
-             border: 'none',
-             borderRadius: '5px',
-             cursor: 'pointer',
-             fontSize: '16px',
-             textAlign: 'center',
-             paddingTop: '1rem',
-             paddingBottom: '1rem',
-             marginTop: '0.25rem',
-             textAlign: 'center',
-          }}>Reset</button>
-          <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+      <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
+        <div className='flex flex-col items-start max-h-screen overflow-auto '>
+          <canvas
+            ref={canvasRef}
+            width={800}
+            height={600}
+            onMouseDown={handleMouseDown}
+            onMouseMove={handleMouseMove}
+            onMouseUp={handleMouseUp} // Ensure mouse up event is handled
+            className='rounded-lg'
+            style={{ border: '1px solid black', marginBottom: '20px' }}
+          />
+          <div className='flex gap-5 items-start'>
+            <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
+              Save Track
+            </button>
+            <label style={buttonStyle}>
+              Load Track
+              <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
+            </label>
+            <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+            <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+          </div>
+        </div>
+
+        <div className="flex justify-center flex-col items-center max-h-screen overflow-auto" style={{ marginTop: '20px', fontSize: '18px' }}>
+          <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
         </div>
       </div>
-
-      {/* Display savedYet value */}
-      <div className="flex justify-center flex-col items-center max-h-screen overflow-auto" style={{ marginTop: '20px', fontSize: '18px' }}>
-        {/* Saved Yet: {savedYet.toString()} */}
-        <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
-      </div>
-    </div>
     </div>
   );
 };
