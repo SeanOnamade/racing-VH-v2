@@ -27,12 +27,6 @@
 -->
 
 <!-- PROJECT LOGO -->
-<br />
-<div align="center">
-  <a href="https://github.com/zander-raycraft/racing-VH">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
-  </a>
-
 <h3 align="center">Doodle Racing</h3>
 
   <p align="center">
