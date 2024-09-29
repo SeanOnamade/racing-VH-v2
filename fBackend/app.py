@@ -2,10 +2,14 @@ import sys
 import os
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS  # Import CORS
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.car import Car, MassCategory, TireType
 
 app = Flask(__name__)
+
+# Enable CORS for all routes in the application
+CORS(app)
 
 # Initialize car object (you can make this dynamic based on user input if needed)
 car = Car(MassCategory.Medium, TireType.Slick, 0, 0)

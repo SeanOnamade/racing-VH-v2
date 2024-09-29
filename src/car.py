@@ -16,13 +16,6 @@ class SurfaceType(Enum):
     Ice = 2
 
 class Car:
-    # @definition: def __init__(self, mCat, tType, startX, startY)
-    #
-    # @params: mCat - MassCategory enum value representing the car's mass category
-    #          tType - TireType enum value representing the car's tire type
-    #          startX - initial X position
-    #          startY - initial Y position
-    # @returns: None
     def __init__(self, mCat, tType, startX, startY):
         self.positionX = startX
         self.positionY = startY
@@ -53,20 +46,12 @@ class Car:
             self.maxVelocity = 180.0
 
         self.wheelbase = 2.5
-        self.weight = self.mass * 9.81
-        self.weight_distribution = 0.6
-        self.Cf = None
-        self.Cr = None
         self.setCorneringStiffness()
 
         self.steering_angle = 0.0
         self.max_steering_angle = math.radians(45)
         self.steering_speed = math.radians(60)
 
-    # @definition: def setMassCategory(self, mCat)
-    #
-    # @params: mCat - MassCategory enum value representing the car's mass category
-    # @returns: None
     def setMassCategory(self, mCat):
         if mCat == MassCategory.Light:
             self.mass = 1800.0 * 0.453592
@@ -75,10 +60,6 @@ class Car:
         elif mCat == MassCategory.Heavy:
             self.mass = 3800.0 * 0.453592
 
-    # @definition: def setTireType(self, tType)
-    #
-    # @params: tType - TireType enum value representing the car's tire type
-    # @returns: None
     def setTireType(self, tType):
         if tType == TireType.Rain:
             self.base_tireGrip = 0.7
@@ -86,34 +67,21 @@ class Car:
             self.base_tireGrip = 1.0
         self.tireGrip = self.base_tireGrip
 
-    # @definition: def setCorneringStiffness(self)
-    #
-    # @params: None
-    # @returns: None
     def setCorneringStiffness(self):
         if self.tireType == TireType.Slick:
             base_stiffness = 150000
         elif self.tireType == TireType.Rain:
             base_stiffness = 100000
 
-        self.Cf = base_stiffness * self.weight_distribution
-        self.Cr = base_stiffness * (1 - self.weight_distribution)
+        self.Cf = base_stiffness * 0.6
+        self.Cr = base_stiffness * 0.4
 
-    # @definition: def calculateUndersteerGradient(self)
-    #
-    # @params: None
-    # @returns: K - the understeer gradient
     def calculateUndersteerGradient(self):
-        Wf = self.weight * self.weight_distribution
-        Wr = self.weight * (1 - self.weight_distribution)
-        K = (self.wheelbase / self.weight) * ((Wf / self.Cf) - (Wr / self.Cr))
+        Wf = self.mass * 0.6
+        Wr = self.mass * 0.4
+        K = (self.wheelbase / self.mass) * ((Wf / self.Cf) - (Wr / self.Cr))
         return K
 
-    # @definition: def applyThrottle(self, throttle, deltaTime)
-    #
-    # @params: throttle - throttle input (0.0 to 1.0)
-    #          deltaTime - time step in seconds
-    # @returns: None
     def applyThrottle(self, throttle, deltaTime):
         maxAcceleration = 30.0
         acceleration = throttle * maxAcceleration * self.traction * (1 - self.velocity / self.maxVelocity)
@@ -124,25 +92,15 @@ class Car:
         if self.velocity > self.maxVelocity:
             self.velocity = self.maxVelocity
 
-    # @definition: def applyBrake(self, brakeForce, deltaTime)
-    #
-    # @params: brakeForce - brake input (0.0 to 1.0)
-    #          deltaTime - time step in seconds
-    # @returns: None
     def applyBrake(self, brakeForce, deltaTime):
         maxDeceleration = 50.0
         deceleration = brakeForce * maxDeceleration * self.traction
         self.acceleration = -deceleration
-        self.velocity -= deceleration * deltaTime
+        self.velocity += self.acceleration * deltaTime
         if self.velocity < 0:
             self.velocity = 0.0
             self.acceleration = 0.0
 
-    # @definition: def updateSteering(self, steeringInput, deltaTime)
-    #
-    # @params: steeringInput - steering input (-1.0 to 1.0)
-    #          deltaTime - time step in seconds
-    # @returns: None
     def updateSteering(self, steeringInput, deltaTime):
         self.steering_angle += steeringInput * self.steering_speed * deltaTime
         if self.steering_angle > self.max_steering_angle:
@@ -150,10 +108,6 @@ class Car:
         elif self.steering_angle < -self.max_steering_angle:
             self.steering_angle = -self.max_steering_angle
 
-    # @definition: def updatePosition(self, deltaTime)
-    #
-    # @params: deltaTime - time step in seconds
-    # @returns: None
     def updatePosition(self, deltaTime):
         rollingResistance = 12.0
         dragCoefficient = 0.4257
@@ -162,14 +116,13 @@ class Car:
         dragForce = 0.5 * dragCoefficient * airDensity * frontalArea * self.velocity**2
 
         totalResistance = (rollingResistance + dragForce) / self.mass
-
         self.velocity -= totalResistance * deltaTime
         if self.velocity < 0:
             self.velocity = 0
 
         if self.velocity > 0:
             if self.steering_angle == 0.0:
-                self.steering_angle = 0.01  # Ensure minimal steering
+                self.steering_angle = 0.01
             K = self.calculateUndersteerGradient()
             adjustedSteeringAngle = self.steering_angle * (1 + K)
 
@@ -205,10 +158,6 @@ class Car:
             else:
                 self.steering_angle += min(steeringReturn, -self.steering_angle)
 
-    # @definition: def updateTireTemperature(self, deltaTime)
-    #
-    # @params: deltaTime - time step in seconds
-    # @returns: None
     def updateTireTemperature(self, deltaTime):
         tempIncrease = (abs(self.steering_angle) + 0.1) * self.velocity * 0.05 * deltaTime
         tempDecrease = (self.tireTemperature - 20.0) * 0.1 * deltaTime
@@ -216,10 +165,6 @@ class Car:
         if self.tireTemperature < 20.0:
             self.tireTemperature = 20.0
 
-    # @definition: def updateTireGrip(self)
-    #
-    # @params: None
-    # @returns: None
     def updateTireGrip(self):
         optimalTemp = 90.0
         tempDifference = abs(self.tireTemperature - optimalTemp)
@@ -232,12 +177,6 @@ class Car:
         if self.tireGrip < self.minTireGrip:
             self.tireGrip = self.minTireGrip
 
-    # @definition: def applyTireStress(self, steeringAngle, velocity, deltaTime)
-    #
-    # @params: steeringAngle - current steering angle in radians
-    #          velocity - current velocity in m/s
-    #          deltaTime - time step in seconds
-    # @returns: None
     def applyTireStress(self, steeringAngle, velocity, deltaTime):
         stressFactor = (abs(steeringAngle) + 0.1) * velocity
         decayAmount = stressFactor * self.gripDecayRate * deltaTime
@@ -245,51 +184,23 @@ class Car:
         if self.tireGrip < self.minTireGrip:
             self.tireGrip = self.minTireGrip
 
-    # @definition: def getPositionX(self)
-    #
-    # @params: None
-    # @returns: positionX - current X position
     def getPositionX(self):
         return self.positionX
 
-    # @definition: def getPositionY(self)
-    #
-    # @params: None
-    # @returns: positionY - current Y position
     def getPositionY(self):
         return self.positionY
 
-    # @definition: def getVelocity(self)
-    #
-    # @params: None
-    # @returns: velocity - current velocity in m/s
     def getVelocity(self):
         return self.velocity
 
-    # @definition: def getAcceleration(self)
-    #
-    # @params: None
-    # @returns: acceleration - current acceleration in m/s²
     def getAcceleration(self):
         return self.acceleration
 
-    # @definition: def getTireGrip(self)
-    #
-    # @params: None
-    # @returns: tireGrip - current tire grip coefficient
     def getTireGrip(self):
         return self.tireGrip
 
-    # @definition: def getTireTemperature(self)
-    #
-    # @params: None
-    # @returns: tireTemperature - current tire temperature in Celsius
     def getTireTemperature(self):
         return self.tireTemperature
 
-    # @definition: def getSteeringAngleDegrees(self)
-    #
-    # @params: None
-    # @returns: steeringAngleDegrees - current steering angle in degrees
     def getSteeringAngleDegrees(self):
         return math.degrees(self.steering_angle)
