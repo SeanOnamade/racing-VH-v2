@@ -200,7 +200,9 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 ## Contact
 
 Zander Raycraft - [zander.j.raycraft@vanderbilt.edu](zander.j.raycraft@vanderbilt.edu)
+
 Sean Onamade - [sean.d.onamade@vanderbilt.edu](sean.d.onamade@vanderbilt.edu)
+
 Ethan Milton - [ethan.h.milton@vanderbilt.edu](ethan.h.milton@vanderbilt.edu)
 <br>
 
