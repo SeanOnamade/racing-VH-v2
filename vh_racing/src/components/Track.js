@@ -9,7 +9,7 @@ class Track {
   
     static fromJSON(jsonData) {
       const points = jsonData.track.map((point) => [point.x, point.y]);
-      const streetDiameter = jsonData.streetDiameter || 40;
+      const streetDiameter = jsonData.streetDiameter || 60;
       return new Track(streetDiameter, points);
     }
   
