@@ -315,34 +315,47 @@ const CarTest = () => {
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        style={{ border: '1px solid black', marginBottom: '20px' }}
-      />
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={saveTrack} style={buttonStyle}>
-          Save Track
+      <div
+    style={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      padding: '20px',
+      backgroundImage: 'url("/snow2.jpg")',
+      backgroundSize: 'contain', 
+      backgroundRepeat: 'no-repeat', 
+      backgroundPosition: 'center', 
+      minHeight: '100vh',
+      backgroundAttachment: 'fixed',
+    }}
+  >
+    <canvas
+      ref={canvasRef}
+      width={800}
+      height={600}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      onMouseMove={handleMouseMove}
+      style={{border: '2px solid black', marginBottom: '20px', opacity: .9}}
+    />
+    <div style={{ display: 'flex', gap: '10px' }}>
+      <button onClick={saveTrack} style={buttonStyle}>
+        Save Track
+      </button>
+      <label style={buttonStyle}>
+        Load Track
+        <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
+      </label>
+      <button onClick={resetTrack} style={buttonStyle}>
+        Reset
+      </button>
+      {showDriveButton && (
+        <button onClick={handleDriveCar} style={buttonStyle}>
+          Drive Car
         </button>
-        <label style={buttonStyle}>
-          Load Track
-          <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
-        </label>
-        <button onClick={resetTrack} style={buttonStyle}>
-          Reset
-        </button>
-        {showDriveButton && (
-          <button onClick={handleDriveCar} style={buttonStyle}>
-            Drive Car
-          </button>
-        )}
-      </div>
+      )}
     </div>
+  </div>
   );
 };
 
