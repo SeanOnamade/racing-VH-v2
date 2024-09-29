@@ -111,7 +111,6 @@ const TrackDrawingApp = () => {
       setIsDrawing(false);
       const rect = canvasRef.current.getBoundingClientRect();
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
-      track.addPoint(pos);
       track.closeTrack();
       setTrackDrawnYet(true);
       setTrack(prevTrack => {
@@ -125,7 +124,14 @@ const TrackDrawingApp = () => {
   const handleMouseMove = (event) => {
     if (isDrawing && !trackDrawnYet) {
       const rect = canvasRef.current.getBoundingClientRect();
-      const pos = [event.clientX - rect.left, event.clientY - rect.top];
+      const scaleX = canvasRef.current.width / rect.width;
+      const scaleY = canvasRef.current.height / rect.height;
+  
+      const pos = [
+        (event.clientX - rect.left) * scaleX,
+        (event.clientY - rect.top) * scaleY
+      ];
+  
       setMousePos(pos);
       track.addPoint(pos);
       setTrack(prevTrack => {
@@ -135,6 +141,7 @@ const TrackDrawingApp = () => {
       });
     }
   };
+  
 
   const saveTrack = async () => {
     if (savedYet) return;
