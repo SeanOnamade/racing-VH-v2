@@ -257,15 +257,16 @@ const TrackDrawingApp = () => {
   };
 
   return (
+    <div className='transform scale-90'>
     <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
-      <div className='flex flex-col items-start'>
+      <div className='flex flex-col items-start max-h-screen overflow-auto '>
         <canvas
           ref={canvasRef}
           width={800}
           height={600}
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
+          className='rounded-lg'
           style={{ border: '1px solid black', marginBottom: '20px' }}
         />
         <div className='flex gap-5 items-start'>
@@ -277,16 +278,30 @@ const TrackDrawingApp = () => {
             Load Track
             <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
           </label>
-          <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+          <button onClick={resetTrack} style={{
+             backgroundColor: 'green',
+             color: 'white',
+             padding: '10px 20px',
+             border: 'none',
+             borderRadius: '5px',
+             cursor: 'pointer',
+             fontSize: '16px',
+             textAlign: 'center',
+             paddingTop: '1rem',
+             paddingBottom: '1rem',
+             marginTop: '0.25rem',
+             textAlign: 'center',
+          }}>Reset</button>
           <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
         </div>
       </div>
 
       {/* Display savedYet value */}
-      <div className="flex justify-center flex-col items-center" style={{ marginTop: '20px', fontSize: '18px' }}>
+      <div className="flex justify-center flex-col items-center max-h-screen overflow-auto" style={{ marginTop: '20px', fontSize: '18px' }}>
         {/* Saved Yet: {savedYet.toString()} */}
         <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
       </div>
+    </div>
     </div>
   );
 };

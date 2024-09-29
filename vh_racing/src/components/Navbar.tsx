@@ -80,7 +80,7 @@ const Navbar: React.FC = () => {
                 Race
               </NavLink>
             </li>
-            <li>
+            <li className='text-white px-4 rounded hover:bg-gray-600'>
               <SignOut onSignOut={handleSignOut} />
             </li>
           </>
