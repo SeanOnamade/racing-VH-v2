@@ -52,7 +52,23 @@ router.get('/load', verifyToken, async (req, res) => {
       }
     }
   });
+
+  router.delete('/delete/:id', verifyToken, async (req, res) => {
+    try {
+      const trackId = req.params.id;
+      const userId = req.user;
   
+      const deletedTrack = await Track.findOneAndDelete({ _id: trackId, userId });
+      if (!deletedTrack) {
+        return res.status(404).json({ message: 'Track not found or unauthorized' });
+      }
+  
+      res.status(200).json({ message: 'Track deleted successfully' });
+    } catch (error) {
+      res.status(500).json({ error: 'Failed to delete track' });
+    }
+  });
+
   
 
 

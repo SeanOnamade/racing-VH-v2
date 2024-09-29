@@ -269,12 +269,12 @@ const TrackDrawingApp = () => {
           className='rounded-lg'
           style={{ border: '1px solid black', marginBottom: '20px' }}
         />
-        <div className='flex gap-5 items-start'>
+        <div className='flex gap-5 items-center'>
           <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
             Save Track
           </button>
           {/* <button onClick={saveTrack} style={buttonStyle}>Save Track</button> */}
-          <label style={buttonStyle}>
+          <label className="transition ease-in-out duration-150 hover:bg-slate-400" style={buttonStyle}>
             Load Track
             <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
           </label>
@@ -287,8 +287,8 @@ const TrackDrawingApp = () => {
              cursor: 'pointer',
              fontSize: '16px',
              textAlign: 'center',
-             paddingTop: '1rem',
-             paddingBottom: '1rem',
+             paddingTop: '1.5rem',
+             paddingBottom: '1.5rem',
              marginTop: '0.25rem',
              textAlign: 'center',
           }}>Reset</button>
