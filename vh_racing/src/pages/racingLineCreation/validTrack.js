@@ -115,9 +115,15 @@ const ValidTrack = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         resizeCanvas();
 
+        // Calculate the translation vector
+        const translationX = car ? -car.positionX + initialCarState.positionX : 0;
+        const translationY = car ? -car.positionY + initialCarState.positionY : 0;
+
+
         // Apply scaling
         ctx.save();
         ctx.scale(scaleFactor, scaleFactor); // Scale everything
+        ctx.translate(translationX, translationY); // Translate to keep car in position
 
         // Draw the track with a thicker stroke
         ctx.lineWidth = 80; // Adjust this value to make the track thicker
