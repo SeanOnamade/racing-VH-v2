@@ -4,7 +4,6 @@ import logo from './logo.svg';
 import './App.css';
 import Signup from './pages/Signup';
 import Login from './pages/Login';
-import { Sign } from 'crypto';
 import RacingLines from './pages/racingLineCreation/racingLines';
 import ValidTrack from './pages/racingLineCreation/validTrack';
 import CarTest from './pages/racingLineCreation/carTest';
