@@ -37,6 +37,17 @@ const ValidTrack = () => {
     img.onload = () => setCarImage(img);
   }, []);
 
+  // Load track from localStorage when component mounts
+  useEffect(() => {
+    const savedTrack = localStorage.getItem('savedTrack');
+    if (savedTrack) {
+      const trackData = JSON.parse(savedTrack);
+      const loadedTrack = new Track(trackData.streetDiameter, trackData.track.map(({ x, y }) => [x, y]));
+      setTrack(loadedTrack);
+      setTrackDrawnYet(true);
+    }
+  }, []);
+
   // Add event listeners for keydown and keyup to capture car control inputs
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -119,7 +130,6 @@ const ValidTrack = () => {
         const translationX = car ? -car.positionX + initialCarState.positionX : 0;
         const translationY = car ? -car.positionY + initialCarState.positionY : 0;
 
-
         // Apply scaling
         ctx.save();
         ctx.scale(scaleFactor, scaleFactor); // Scale everything
@@ -131,8 +141,8 @@ const ValidTrack = () => {
 
         // Draw the car only if it exists
         if (car && carPos) {
-          const carWidth = 30; // Use original dimensions
-          const carHeight = 20; // Use original dimensions
+          const carWidth = 30 * (scaleFactor * .8); // Use original dimensions
+          const carHeight = 20 * (scaleFactor * .8); // Use original dimensions
           ctx.save();
           ctx.translate(carPos[0], carPos[1]);
           ctx.rotate(car.angle);
@@ -232,28 +242,6 @@ const ValidTrack = () => {
     }
   };
 
-  /*
- // Check if the file contains old or new format
-        if (data && data.track) {
-          // Old format
-          console.log('Loaded track from file (old format):', data);
-          const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
-          setTrack(loadedTrack);
-          setTrackDrawnYet(true);
-          setSavedYet(true);
-        } else if (data && data.trackData && data.trackData.track) {
-          // New format
-          console.log('Loaded track from file (new format):', data);
-          const loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map(point => [point.x, point.y]));
-          setTrack(loadedTrack);
-          setTrackDrawnYet(true);
-          setSavedYet(true);
-        } else {
-          console.error('Invalid track data', data);
-        }
-
-  */
-
   useEffect(() => {
     if (trackDrawnYet) {
       handleDriveCar();
@@ -263,15 +251,14 @@ const ValidTrack = () => {
   // Resize the canvas
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
-    canvas.width = originalWidth*scaleFactor;
-    canvas.height = originalHeight*scaleFactor;
+    canvas.width = originalWidth * scaleFactor;
+    canvas.height = originalHeight * scaleFactor;
 
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = 'rgb(4, 112, 0)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
 
-  
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px' }}>
       <canvas
@@ -284,7 +271,6 @@ const ValidTrack = () => {
         Load Track
         <input type="file" accept=".json" onChange={loadTrack} style={{ display: 'none' }} />
       </label>
-      {/*fileName && <p>Loaded File: {fileName}</p>*/}
     </div>
   );
 };
@@ -299,6 +285,5 @@ const buttonStyle = {
   fontSize: '16px',
   textAlign: 'center',
 };
-
 
 export default ValidTrack;
