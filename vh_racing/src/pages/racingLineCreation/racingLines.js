@@ -1,13 +1,14 @@
 import React, { useRef, useState, useEffect } from 'react';
 import axios from 'axios';
 import TrackList from '../../components/TrackList.tsx';
+import { useNavigate } from 'react-router-dom';
 
 // Track class definition
 class Track {
-  constructor(streetDiameter = 20, points = []) {
-    this.points = points;
-    this.drawing = false;
-    this.streetDiameter = streetDiameter;
+  constructor(streetDiameter = 50, points = []) {
+    this.points = points; // Initialize with passed points
+    this.drawing = false; // Flag for drawing state
+    this.streetDiameter = streetDiameter; // Diameter of the street
   }
 
   addPoint(pos) {
@@ -78,6 +79,8 @@ const TrackDrawingApp = () => {
   const [mousePos, setMousePos] = useState([0, 0]);
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [reloadTracks, setReloadTracks] = useState(false); // State to trigger reloading the track list
+  const [savedYet, setSavedYet] = useState(false); // Initialize savedYet // accepted
+  const navigate = useNavigate(); // accepted
   
 
   useEffect(() => {
@@ -135,6 +138,7 @@ const TrackDrawingApp = () => {
   };
 
   const saveTrack = async () => {
+    if (savedYet) return; // ADDED!
     const { filename, trackData } = track.save();
     const token = localStorage.getItem('token');
 
@@ -165,6 +169,7 @@ const TrackDrawingApp = () => {
       link.href = URL.createObjectURL(blob);
       link.download = filename;
       link.click();
+      setSavedYet(true); // ADDED
       setReloadTracks(!reloadTracks);
     } catch (error) {
       console.error('Failed to save track:', error);
@@ -198,6 +203,7 @@ const TrackDrawingApp = () => {
         const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
         setTrack(loadedTrack);
         setTrackDrawnYet(true);
+        setSavedYet(true); // ADDED
         event.target.value = null;
       };
       reader.readAsText(file);
@@ -208,6 +214,12 @@ const TrackDrawingApp = () => {
     track.clear();
     setTrack(new Track(track.streetDiameter));
     setTrackDrawnYet(false);
+    setSavedYet(false); // ADDED
+  };
+
+  const handleValidateTrack = () => { // ADDED
+    saveTrack(); // Save the track file when validating
+    navigate('/ethan/validTrack');
   };
 
   return (
@@ -222,12 +234,20 @@ const TrackDrawingApp = () => {
         style={{ border: '1px solid black', marginBottom: '20px' }}
       />
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={saveTrack} style={buttonStyle}>Save Track</button>
+        <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
+          Save Track
+        </button>
+        {/* <button onClick={saveTrack} style={buttonStyle}>Save Track</button> */}
         <label style={buttonStyle}>
           Load Track
           <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
         </label>
         <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+        <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+      </div>
+      {/* Display savedYet value */}
+      <div style={{ marginTop: '20px', fontSize: '18px' }}>
+        Saved Yet: {savedYet.toString()}
       </div>
       <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
     </div>

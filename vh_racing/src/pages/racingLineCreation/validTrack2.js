@@ -1,11 +1,15 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import Car2 from './Car2.js'; // Import the Car2 class
 
-const ValidTrack = () => {
+const ValidTrack2 = () => {
   const [fileName, setFileName] = useState('');
+  const [trackData, setTrackData] = useState(null); // State to store track data
   const canvasRef = useRef(null);
   const originalWidth = 800;
   const originalHeight = 600;
-  const scaleFactor = 4; // Constant scaling factor
+  const scaleFactor = 4; // Set scaleFactor to 1 for now
+  const carRef = useRef(null); // Ref for the Car2 object
+  let cursorPosition = { x: 0, y: 0 }; // Declare cursor position with let
 
   const loadTrack = (event) => {
     const file = event.target.files[0];
@@ -15,16 +19,26 @@ const ValidTrack = () => {
       reader.onload = (e) => {
         try {
           const jsonData = JSON.parse(e.target.result);
-          // Check if track exists in jsonData and is an array
           if (Array.isArray(jsonData.track)) {
+            setTrackData(jsonData); // Store the track data in state
+
             const points = jsonData.track.map(point => [point.x, point.y]); // Convert to array of [x, y]
             const streetDiameter = jsonData.streetDiameter; // Get the street diameter
-            
-            // Scale points and resize canvas
+
             const scaledPoints = points.map(point => [point[0] * scaleFactor, point[1] * scaleFactor]); // Scale up by scaleFactor
             resizeCanvas(); // Resize canvas to scaleFactor times the original size
-            
+
             drawTrack(scaledPoints, streetDiameter); // Call the drawing function with points and diameter
+            
+            // Initialize the Car2 object after drawing the track
+            carRef.current = new Car2(
+              { x: originalWidth * scaleFactor / 2, y: originalHeight * scaleFactor / 2 },
+              { x: 2, y: 2 }, // Initial velocity
+              0.05, // Friction
+              originalWidth * scaleFactor,
+              originalHeight * scaleFactor
+            );
+            requestAnimationFrame(() => animateCar(jsonData)); // Start animation loop
           } else {
             console.error("Invalid data format: 'track' is not an array");
           }
@@ -37,33 +51,28 @@ const ValidTrack = () => {
     }
   };
 
-  // Method to resize the canvas
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     canvas.width = originalWidth * scaleFactor;
     canvas.height = originalHeight * scaleFactor;
-    
-    // Clear and redraw the track after resizing
+
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = 'rgb(4, 112, 0)'; // Set background color
     ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the background
   };
 
-  // Method to draw the track on the canvas
   const drawTrack = (points, streetDiameter) => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     const colors = ['grey', 'black']; // Array of colors for the track
-    const widths = [streetDiameter * scaleFactor + 10*scaleFactor, streetDiameter * scaleFactor]; // Scale widths
+    const widths = [streetDiameter * scaleFactor + 10 * scaleFactor, streetDiameter * scaleFactor]; // Scale widths
 
-    // Draw the lines and rounded ends for both colors
     if (points.length > 1) {
       for (let i = 0; i < colors.length; i++) {
         ctx.strokeStyle = colors[i]; // Set line color
         ctx.lineWidth = widths[i]; // Set line width
 
-        // Draw the lines
         ctx.beginPath();
         ctx.moveTo(points[0][0], points[0][1]); // Start from the first point
         for (let j = 1; j < points.length; j++) {
@@ -84,13 +93,71 @@ const ValidTrack = () => {
     }
   };
 
+  const animateCar = (jsonData) => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const car = carRef.current;
+
+    if (car) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas
+      ctx.fillStyle = 'rgb(4, 112, 0)'; // Set background color
+      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the background
+
+      // Redraw the track
+      const points = jsonData.track.map(point => [point.x * scaleFactor, point.y * scaleFactor]);
+      drawTrack(points, jsonData.streetDiameter);
+
+      // Draw the cursor position as a circle
+      ctx.fillStyle = 'red'; // Set color for the cursor circle
+      ctx.beginPath();
+      ctx.arc(cursorPosition.x, cursorPosition.y, 10, 0, Math.PI * 2); // Draw the circle at cursor position
+      ctx.fill(); // Fill the circle
+
+      // Update and draw the car towards the cursor position
+      const directionVector = {
+        x: cursorPosition.x - car.position.x,
+        y: cursorPosition.y - car.position.y
+      };
+
+      // Normalize the vector
+      const length = Math.sqrt(directionVector.x ** 2 + directionVector.y ** 2);
+      const normalizedVector = {
+        x: (length > 0 ? directionVector.x / length : 0) * 1, // Scale to magnitude of 5
+        y: (length > 0 ? directionVector.y / length : 0) * 1  // Scale to magnitude of 5
+      };
+
+      car.update2(normalizedVector); // Update car position
+      car.draw(ctx); // Draw the car
+
+      requestAnimationFrame(() => animateCar(jsonData)); // Loop the animation
+    }
+  };
+
+  const handleMouseMove = (event) => {
+    // Update cursor position
+    cursorPosition.x = event.clientX - canvasRef.current.getBoundingClientRect().left;
+    cursorPosition.y = event.clientY - canvasRef.current.getBoundingClientRect().top;
+
+    // Print cursor position to console
+    console.log(`Cursor Position: x=${cursorPosition.x}, y=${cursorPosition.y}`);
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    canvas.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      canvas.removeEventListener('mousemove', handleMouseMove);
+      cancelAnimationFrame(animateCar);
+    };
+  }, []);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px' }}> {/* Align left */}
-      {/* Blank Canvas */}
       <canvas
         ref={canvasRef}
-        width={originalWidth} 
-        height={originalHeight} 
+        width={originalWidth}
+        height={originalHeight}
         style={{ border: '1px solid black', marginBottom: '20px', display: 'block' }} 
       />
       <label style={buttonStyle}>
@@ -113,4 +180,4 @@ const buttonStyle = {
   textAlign: 'center',
 };
 
-export default ValidTrack;
+export default ValidTrack2;

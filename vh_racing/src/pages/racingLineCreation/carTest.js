@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Car, MassCategory, TireType } from '../../components/Car.js';
 
 // Track class definition
 class Track {
-  constructor(streetDiameter = 20, points = []) {
+  constructor(streetDiameter = 40, points = []) {
     this.points = points;
     this.drawing = false;
     this.streetDiameter = streetDiameter;
@@ -64,10 +65,51 @@ class Track {
     }
   }
 
-  getPointsCount() {
-    return this.points.length;
+  getDirection() {
+    if (this.points.length > 1) {
+      const [x1, y1] = this.points[0];
+      const [x2, y2] = this.points[1];
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      return angle;
+    }
+    return 0; // Default to no angle if insufficient points
+  }
+
+  getCheckpoints() {
+    const numCheckpoints = 4;
+    const checkpointInterval = Math.floor(this.points.length / numCheckpoints);
+    let checkpoints = [];
+    for (let i = 0; i < numCheckpoints; i++) {
+      checkpoints.push(this.points[i * checkpointInterval]);
+    }
+    return checkpoints;
+  }
+
+  isCarWithinTrack(carPos, carWidth) {
+    const margin = this.streetDiameter / 2;
+    for (let i = 0; i < this.points.length - 1; i++) {
+      const [x1, y1] = this.points[i];
+      const [x2, y2] = this.points[i + 1];
+
+      if (
+        carPos[0] > Math.min(x1, x2) - margin &&
+        carPos[0] < Math.max(x1, x2) + margin &&
+        carPos[1] > Math.min(y1, y2) - margin &&
+        carPos[1] < Math.max(y1, y2) + margin
+      ) {
+        return true;
+      }
+    }
+    return false;
   }
 }
+
+// Modular car creation function
+const createCar = (x, y, angle) => {
+  const car = new Car(MassCategory.Medium, TireType.Slick, x, y);
+  car.angle = angle;
+  return car;
+};
 
 // React Component for the track drawing application
 const CarTest = () => {
@@ -77,10 +119,25 @@ const CarTest = () => {
   const [mousePos, setMousePos] = useState([0, 0]);
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [showDriveButton, setShowDriveButton] = useState(false);
+  const [car, setCar] = useState(null); // Initialize car object
   const [carPos, setCarPos] = useState(null);
-  const carWidth = track.streetDiameter / 2;
-  const carLength = carWidth * 1.3;
+  const [checkpoints, setCheckpoints] = useState([]);
+  const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
+  const [carImage, setCarImage] = useState(null); // State for the car image
+  const [keys, setKeys] = useState({ ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false });
+  const [lastTime, setLastTime] = useState(performance.now());
+  const [initialCarState, setInitialCarState] = useState(null); // Store initial car state
 
+  const carRadius = track.streetDiameter / 4;
+
+  // Load car image from public folder
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/car.png"; // Path to your car image
+    img.onload = () => setCarImage(img);
+  }, []);
+
+  // Draw the car and track
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -90,15 +147,86 @@ const CarTest = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       track.draw(ctx);
 
-      // Draw the car if a position is set
-      if (carPos) {
-        ctx.fillStyle = 'red'; // Car color
-        ctx.fillRect(carPos[0] - carWidth / 2, carPos[1] - carLength / 2, carWidth, carLength); // Draw car as a rectangle
+      if (carPos && carImage && car) {
+        const carWidth = carRadius * 4;
+        const carHeight = carRadius * 3;
+        ctx.save();
+        ctx.translate(carPos[0], carPos[1]);
+        ctx.rotate(car.angle); // Car's angle in radians
+        ctx.drawImage(carImage, -carWidth / 2, -carHeight / 2, carWidth, carHeight);
+        ctx.restore();
       }
     };
 
     draw();
-  }, [track, mousePos, isDrawing, carPos, carWidth, carLength]);
+  }, [track, mousePos, isDrawing, carPos, carRadius, carImage, car]);
+
+  // Handle steering reset to zero when no keys are pressed
+  const resetSteering = (car, deltaTime) => {
+    if (car.steeringAngle > 0) {
+      car.updateSteering(-0.2, deltaTime); // Gradually reduce the angle
+    } else if (car.steeringAngle < 0) {
+      car.updateSteering(0.2, deltaTime); // Gradually increase the angle
+    }
+  };
+
+  // Reset the car to its initial spawn position and orientation
+  const resetCarToStart = () => {
+    if (car && initialCarState) {
+      car.positionX = initialCarState.positionX;
+      car.positionY = initialCarState.positionY;
+      car.velocity = 0;
+      car.angle = initialCarState.angle;
+      car.steeringAngle = 0;
+      setCarPos([initialCarState.positionX, initialCarState.positionY]);
+    }
+  };
+
+  useEffect(() => {
+    const now = performance.now();
+    const deltaTime = (now - lastTime) / 1000; // Calculate time difference in seconds
+    setLastTime(now);
+
+    if (car) {
+      let throttle = keys.ArrowUp ? 0.5 : 0;
+      let brake = keys.ArrowDown ? 0.5 : 0;
+      let steeringInput = keys.ArrowLeft ? -0.5 : keys.ArrowRight ? 0.5 : 0;
+
+      if (throttle > 0) {
+        car.applyThrottle(throttle, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
+      }
+
+      if (brake > 0) {
+        car.applyBrake(brake, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
+      }
+
+      if (steeringInput !== 0) {
+        car.updateSteering(steeringInput, deltaTime);
+      } else {
+        // Gradually return the steering angle to zero if no keys are pressed
+        resetSteering(car, deltaTime);
+      }
+
+      car.updatePosition(deltaTime);
+      const newCarPos = [car.getPositionX(), car.getPositionY()];
+
+      if (!track.isCarWithinTrack(newCarPos, carRadius)) {
+        resetCarToStart(); // Reset to start position and orientation if car goes off track
+      } else {
+        setCarPos(newCarPos);
+        checkpoints.forEach((checkpoint, idx) => {
+          const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
+          if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
+            setCurrentCheckpoint(checkpoint);
+          }
+        });
+      }
+    }
+  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
   const handleMouseDown = (event) => {
     if (!isDrawing && !trackDrawnYet) {
@@ -111,21 +239,11 @@ const CarTest = () => {
     }
   };
 
-  const handleMouseUp = (event) => {
-    if (isDrawing) {
-      setIsDrawing(false);
-      const rect = canvasRef.current.getBoundingClientRect();
-      const pos = [event.clientX - rect.left, event.clientY - rect.top];
-      track.addPoint(pos);
-      track.closeTrack();
-      setTrackDrawnYet(true);
-      setShowDriveButton(true); // Show the "Drive Car" button when track is drawn
-      setTrack(prevTrack => {
-        const updatedTrack = new Track(prevTrack.streetDiameter);
-        updatedTrack.points = [...prevTrack.points];
-        return updatedTrack;
-      });
-    }
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+    track.closeTrack();
+    setTrackDrawnYet(true);
+    setShowDriveButton(true);
   };
 
   const handleMouseMove = (event) => {
@@ -134,11 +252,6 @@ const CarTest = () => {
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
       setMousePos(pos);
       track.addPoint(pos);
-      setTrack(prevTrack => {
-        const updatedTrack = new Track(prevTrack.streetDiameter);
-        updatedTrack.points = [...prevTrack.points];
-        return updatedTrack;
-      });
     }
   };
 
@@ -157,14 +270,12 @@ const CarTest = () => {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
-        console.log("Loaded data:", data);
-
-        const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
+        const loadedTrack = new Track(data.streetDiameter, data.track.map((point) => [point.x, point.y]));
         setTrack(loadedTrack);
         setTrackDrawnYet(true);
         setShowDriveButton(true);
-
-        event.target.value = null;
+        setCheckpoints(loadedTrack.getCheckpoints());
+        setCurrentCheckpoint(loadedTrack.points[0]);
       };
       reader.readAsText(file);
     }
@@ -176,74 +287,55 @@ const CarTest = () => {
     setTrackDrawnYet(false);
     setShowDriveButton(false);
     setCarPos(null);
+    setCurrentCheckpoint(null);
   };
 
-  // Function to handle car driving (for now just place it at the start)
+  // Handle driving the car and using the modular `createCar` function
   const handleDriveCar = () => {
     if (track.points.length > 0) {
-      setCarPos(track.points[0]); // Set car at the starting point
+      const initialAngle = track.getDirection();
+      const car = createCar(track.points[0][0], track.points[0][1], initialAngle); // Call modularized car creation function
+      setInitialCarState({ positionX: car.positionX, positionY: car.positionY, angle: car.angle });
+      setCar(car);
+      setCarPos(track.points[0]);
+      setCurrentCheckpoint(track.points[0]);
     }
   };
 
-  // Capture key events and send control signals to Flask backend
+  // Update key states when pressed or released
+  const handleKeyDown = (event) => {
+    setKeys((prevKeys) => ({ ...prevKeys, [event.key]: true }));
+  };
+
+  const handleKeyUp = (event) => {
+    setKeys((prevKeys) => ({ ...prevKeys, [event.key]: false }));
+  };
+
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      let throttle = 0;
-      let brake = 0;
-      let steeringInput = 0;
-      const deltaTime = 1.0;
-
-      if (event.key === 'ArrowUp') {
-        throttle = 1.0;
-      } else if (event.key === 'ArrowDown') {
-        brake = 1.0;
-      } else if (event.key === 'ArrowLeft') {
-        steeringInput = -1.0;
-      } else if (event.key === 'ArrowRight') {
-        steeringInput = 1.0;
-      }
-
-      // Send the control data to Flask backend
-      if (throttle > 0) {
-        fetch('/api/apply_throttle', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ throttle, deltaTime })
-        }).then(response => response.json()).then(data => {
-          setCarPos([data.positionX, data.positionY]);
-        });
-      }
-
-      if (brake > 0) {
-        fetch('/api/apply_brake', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ brake, deltaTime })
-        }).then(response => response.json()).then(data => {
-          setCarPos([data.positionX, data.positionY]);
-        });
-      }
-
-      if (steeringInput !== 0) {
-        fetch('/api/update_steering', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ steeringInput, deltaTime })
-        }).then(response => response.json()).then(data => {
-          setCarPos([data.positionX, data.positionY]);
-        });
-      }
-    };
-
     window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
     };
   }, []);
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        backgroundImage: 'url("/snow2.jpg")',
+        backgroundSize: 'contain', 
+        backgroundRepeat: 'no-repeat', 
+        backgroundPosition: 'center', 
+        minHeight: '100vh',
+        backgroundAttachment: 'fixed',
+      }}
+    >
       <canvas
         ref={canvasRef}
         width={800}
@@ -251,24 +343,30 @@ const CarTest = () => {
         onMouseDown={handleMouseDown}
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
-        style={{ border: '1px solid black', marginBottom: '20px' }}
+        style={{ border: '2px solid black', marginBottom: '20px', opacity: 1 }}
       />
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={saveTrack} style={buttonStyle}>Save Track</button>
+        <button onClick={saveTrack} style={buttonStyle}>
+          Save Track
+        </button>
         <label style={buttonStyle}>
           Load Track
           <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
         </label>
-        <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+        <button onClick={resetTrack} style={buttonStyle}>
+          Reset
+        </button>
         {showDriveButton && (
-          <button onClick={handleDriveCar} style={buttonStyle}>Drive Car</button>
+          <button onClick={handleDriveCar} style={buttonStyle}>
+            Drive Car
+          </button>
         )}
       </div>
     </div>
   );
 };
 
-// Button style as a rectangle with text
+// Button style
 const buttonStyle = {
   backgroundColor: 'green',
   color: 'white',
@@ -280,5 +378,4 @@ const buttonStyle = {
   textAlign: 'center',
 };
 
-// Export the CarTest component as default
 export default CarTest;

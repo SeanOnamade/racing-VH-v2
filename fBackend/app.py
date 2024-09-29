@@ -2,13 +2,19 @@ import sys
 import os
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS  # Import CORS
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from src.car import Car, MassCategory, TireType
 
 app = Flask(__name__)
 
+# Enable CORS for all routes in the application
+CORS(app)
+
 # Initialize car object (you can make this dynamic based on user input if needed)
 car = Car(MassCategory.Medium, TireType.Slick, 0, 0)
+
 
 # @definition: def apply_throttle()
 #
@@ -30,6 +36,12 @@ def apply_throttle():
     deltaTime = data.get('deltaTime', 1.0)
     car.applyThrottle(throttle, deltaTime)
     car.updatePosition(deltaTime)
+
+    # Debug statements for logging
+    print(f"Throttle applied: {throttle}")
+    print(f"New velocity: {car.getVelocity()}")
+    print(f"New position: ({car.getPositionX()}, {car.getPositionY()})")
+
     return jsonify({
         'positionX': car.getPositionX(),
         'positionY': car.getPositionY(),
@@ -38,6 +50,7 @@ def apply_throttle():
         'tireTemperature': car.getTireTemperature(),
         'steeringAngle': car.getSteeringAngleDegrees()
     })
+
 
 # @definition: def apply_brake()
 #
@@ -59,6 +72,12 @@ def apply_brake():
     deltaTime = data.get('deltaTime', 1.0)
     car.applyBrake(brake, deltaTime)
     car.updatePosition(deltaTime)
+
+    # Debug statements for logging
+    print(f"Brake applied: {brake}")
+    print(f"New velocity: {car.getVelocity()}")
+    print(f"New position: ({car.getPositionX()}, {car.getPositionY()})")
+
     return jsonify({
         'positionX': car.getPositionX(),
         'positionY': car.getPositionY(),
@@ -67,6 +86,7 @@ def apply_brake():
         'tireTemperature': car.getTireTemperature(),
         'steeringAngle': car.getSteeringAngleDegrees()
     })
+
 
 # @definition: def update_steering()
 #
@@ -88,6 +108,12 @@ def update_steering():
     deltaTime = data.get('deltaTime', 1.0)
     car.updateSteering(steeringInput, deltaTime)
     car.updatePosition(deltaTime)
+
+    # Debug statements for logging
+    print(f"Steering input: {steeringInput}")
+    print(f"Steering angle (degrees): {car.getSteeringAngleDegrees()}")
+    print(f"New position: ({car.getPositionX()}, {car.getPositionY()})")
+
     return jsonify({
         'positionX': car.getPositionX(),
         'positionY': car.getPositionY(),
@@ -96,6 +122,7 @@ def update_steering():
         'tireTemperature': car.getTireTemperature(),
         'steeringAngle': car.getSteeringAngleDegrees()
     })
+
 
 if __name__ == '__main__':
     app.run(debug=True)
