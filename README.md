@@ -79,7 +79,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot_1.png)
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot1.png)
 
 Doodle Racing is a fun application that lets users create, save, and race on custom-designed tracks. It’s designed to allow players to draw their racetrack with a flexible drawing tool and simulate racing on these tracks.
 
@@ -88,9 +88,13 @@ Doodle Racing is a fun application that lets users create, save, and race on cus
 
 ### Built With
 
-* [![HTML][HTML-shield]][HTML-url]
-* [![CSS][CSS-shield]][CSS-url]
-* [![JavaScript][JavaScript-shield]][JavaScript-url]
+![GitHub Fork](https://img.shields.io/badge/Code-Html5-orange?logo=html5&logoColor=orange)
+![GitHub Fork](https://img.shields.io/badge/Code-JavaScript-yellow?logo=javascript&logoColor=yellow)
+![GitHub Fork](https://img.shields.io/badge/Code-TypeScript-lightblue?logo=typescript&logoColor=lightblue)
+
+![GitHub Fork](https://img.shields.io/badge/Framework-Flask-red?logo=flask&logoColor=red)
+![GitHub Fork](https://img.shields.io/badge/Framework-React.js-teal?logo=react&logoColor=lightblue)
+![GitHub Fork](https://img.shields.io/badge/Style-Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
