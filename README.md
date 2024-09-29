@@ -199,22 +199,15 @@ Distributed under the MIT License. See `LICENSE.txt` for more information.
 <!-- CONTACT -->
 ## Contact
 
+Zander Raycraft - [zander.j.raycraft@vanderbilt.edu](zander.j.raycraft@vanderbilt.edu)
 Sean Onamade - [sean.d.onamade@vanderbilt.edu](sean.d.onamade@vanderbilt.edu)
+Ethan Milton - [ethan.h.milton@vanderbilt.edu](ethan.h.milton@vanderbilt.edu)
 <br>
-Project Link: [https://github.com/SeanOnamade/weaponappv1](https://github.com/SeanOnamade/weaponappv1)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- ACKNOWLEDGMENTS -->
-## Acknowledgments
 
-As aforementioned, this project was initially created by Siko91 who did an amazing job with the generator and the base logic. A massive thanks to him!
-
-* [The Original Generator's GitHub](https://github.com/Siko91/tf2-weapon-generator)
-* [Link to the original generator](https://siko91.github.io/tf2-weapon-generator/)
-* [Here's his GitHub page](https://github.com/Siko91)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
