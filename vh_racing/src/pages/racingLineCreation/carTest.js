@@ -117,10 +117,8 @@ const CarTest = () => {
   const [checkpoints, setCheckpoints] = useState([]);
   const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
   const [carImage, setCarImage] = useState(null); // State for the car image
-  const [leftPressed, setLeftPressed] = useState(false); // Track if left arrow is pressed
-  const [rightPressed, setRightPressed] = useState(false); // Track if right arrow is pressed
-  const [accelerating, setAccelerating] = useState(false); // Track if throttle is pressed
-  const [braking, setBraking] = useState(false); // Track if brake is pressed
+  const [keys, setKeys] = useState({ ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false });
+  const [lastTime, setLastTime] = useState(performance.now());
 
   const carRadius = track.streetDiameter / 4;
 
@@ -253,101 +251,67 @@ const CarTest = () => {
     }
   };
 
-  // Capture key events and move the car based on those
+  // Update key states when pressed or released
+  const handleKeyDown = (event) => {
+    setKeys((prevKeys) => ({ ...prevKeys, [event.key]: true }));
+  };
+
+  const handleKeyUp = (event) => {
+    setKeys((prevKeys) => ({ ...prevKeys, [event.key]: false }));
+  };
+
   useEffect(() => {
-    const handleKeyDown = (event) => {
-      let throttle = 0;
-      let brake = 0;
-      let steeringInput = 0;
+    const now = performance.now();
+    const deltaTime = (now - lastTime) / 1000; // Calculate time difference in seconds
+    setLastTime(now);
 
-      // Reduce deltaTime to make smaller increments
-      const deltaTime = 0.1;  // Smaller increments
+    if (car) {
+      let throttle = keys.ArrowUp ? 0.5 : 0;
+      let brake = keys.ArrowDown ? 0.5 : 0;
+      let steeringInput = keys.ArrowLeft ? -0.5 : keys.ArrowRight ? 0.5 : 0;
 
-      if (event.key === 'ArrowUp') {
-        setAccelerating(true);
-        throttle = 0.5;  // Lower throttle for smaller increments
-      } else if (event.key === 'ArrowDown') {
-        setBraking(true);
-        brake = 0.5; // Lower brake force
-      } else if (event.key === 'ArrowLeft') {
-        setLeftPressed(true);
-        setRightPressed(false);
-        steeringInput = -0.5; // Reduce steering increment
-      } else if (event.key === 'ArrowRight') {
-        setRightPressed(true);
-        setLeftPressed(false);
-        steeringInput = 0.5;
+      if (throttle > 0) {
+        car.applyThrottle(throttle, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
       }
 
-      if (car) {
-        if (throttle > 0) {
-          car.applyThrottle(throttle, deltaTime);
-        } else if (!accelerating && !braking) {
-          car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
-        }
-
-        if (brake > 0) {
-          car.applyBrake(brake, deltaTime);
-        } else if (!braking && !accelerating) {
-          // Simulate natural friction (slows down gradually)
-          car.applyBrake(0.1, deltaTime); 
-        }
-
-        if (steeringInput !== 0) {
-          car.updateSteering(steeringInput, deltaTime);
-        }
-
-        car.updatePosition(deltaTime);
-        const newCarPos = [car.getPositionX(), car.getPositionY()];
-
-        if (!track.isCarWithinTrack(newCarPos, carRadius)) {
-          console.log('Car went off track. Resetting to last checkpoint.');
-          setCarPos(currentCheckpoint);
-        } else {
-          setCarPos(newCarPos);
-
-          // Check if we have passed a checkpoint
-          checkpoints.forEach((checkpoint, idx) => {
-            const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
-            if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
-              setCurrentCheckpoint(checkpoint);
-              console.log(`Passed checkpoint ${idx}, New checkpoint: ${checkpoint}`);
-            }
-          });
-        }
+      if (brake > 0) {
+        car.applyBrake(brake, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
       }
-    };
 
-    const handleKeyUp = (event) => {
-      if (event.key === 'ArrowUp') {
-        setAccelerating(false);
-      } else if (event.key === 'ArrowDown') {
-        setBraking(false);
-      } else if (event.key === 'ArrowLeft') {
-        setLeftPressed(false);
-      } else if (event.key === 'ArrowRight') {
-        setRightPressed(false);
+      if (steeringInput !== 0) {
+        car.updateSteering(steeringInput, deltaTime);
       }
-    };
 
-    const resetSteering = () => {
-      if (car && !leftPressed && !rightPressed) {
-        const deltaTime = 0.1;
-        car.updateSteering(0, deltaTime); // Gradually return steering to neutral
+      car.updatePosition(deltaTime);
+      const newCarPos = [car.getPositionX(), car.getPositionY()];
+
+      if (!track.isCarWithinTrack(newCarPos, carRadius)) {
+        setCarPos(currentCheckpoint); // Reset to checkpoint if car goes off track
+      } else {
+        setCarPos(newCarPos);
+        checkpoints.forEach((checkpoint, idx) => {
+          const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
+          if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
+            setCurrentCheckpoint(checkpoint);
+          }
+        });
       }
-    };
+    }
+  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
+  useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
-
-    const interval = setInterval(resetSteering, 100); // Call resetSteering every 100ms to gradually reset the angle
 
     return () => {
       window.removeEventListener('keydown', handleKeyDown);
       window.removeEventListener('keyup', handleKeyUp);
-      clearInterval(interval); // Clear the interval when the component unmounts
     };
-  }, [car, carPos, currentCheckpoint, checkpoints, track, leftPressed, rightPressed, accelerating, braking]);
+  }, []);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
