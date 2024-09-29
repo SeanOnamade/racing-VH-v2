@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { Car, MassCategory, TireType } from '../../components/Car.js';
 
 // Track class definition
 class Track {
@@ -64,6 +65,16 @@ class Track {
     }
   }
 
+  getDirection() {
+    if (this.points.length > 1) {
+      const [x1, y1] = this.points[0];
+      const [x2, y2] = this.points[1];
+      const angle = Math.atan2(y2 - y1, x2 - x1);
+      return angle;
+    }
+    return 0; // Default to no angle if insufficient points
+  }
+
   getCheckpoints() {
     const numCheckpoints = 4;
     const checkpointInterval = Math.floor(this.points.length / numCheckpoints);
@@ -101,10 +112,24 @@ const CarTest = () => {
   const [mousePos, setMousePos] = useState([0, 0]);
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [showDriveButton, setShowDriveButton] = useState(false);
+  const [car, setCar] = useState(null); // Initialize car object
   const [carPos, setCarPos] = useState(null);
   const [checkpoints, setCheckpoints] = useState([]);
   const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
+  const [carImage, setCarImage] = useState(null); // State for the car image
+  const [leftPressed, setLeftPressed] = useState(false); // Track if left arrow is pressed
+  const [rightPressed, setRightPressed] = useState(false); // Track if right arrow is pressed
+  const [accelerating, setAccelerating] = useState(false); // Track if throttle is pressed
+  const [braking, setBraking] = useState(false); // Track if brake is pressed
+
   const carRadius = track.streetDiameter / 4;
+
+  // Load car image from public folder
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/car.png"; // Path to your car image
+    img.onload = () => setCarImage(img);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -115,17 +140,28 @@ const CarTest = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       track.draw(ctx);
 
-      // Draw the car if a position is set
-      if (carPos) {
-        ctx.fillStyle = 'red';
-        ctx.beginPath();
-        ctx.arc(carPos[0], carPos[1], carRadius, 0, Math.PI * 2); // Draw the car as a circle
-        ctx.fill();
+      // Draw the car image if a position is set and the image has loaded
+      if (carPos && carImage && car) {
+        const carWidth = carRadius * 4;
+        const carHeight = carRadius * 3;
+
+        // Save the current context before transformation
+        ctx.save();
+
+        // Translate context to the car position and rotate based on the car's angle
+        ctx.translate(carPos[0], carPos[1]);
+        ctx.rotate(car.angle); // Car's angle in radians
+
+        // Draw the car image centered around the car position
+        ctx.drawImage(carImage, -carWidth / 2, -carHeight / 2, carWidth, carHeight);
+
+        // Restore the context after drawing
+        ctx.restore();
       }
     };
 
     draw();
-  }, [track, mousePos, isDrawing, carPos, carRadius]);
+  }, [track, mousePos, isDrawing, carPos, carRadius, carImage, car]);
 
   const handleMouseDown = (event) => {
     if (!isDrawing && !trackDrawnYet) {
@@ -208,62 +244,61 @@ const CarTest = () => {
 
   const handleDriveCar = () => {
     if (track.points.length > 0) {
+      const initialAngle = track.getDirection(); // Get initial direction of the car
+      const car = new Car(MassCategory.Medium, TireType.Slick, track.points[0][0], track.points[0][1]);
+      car.angle = initialAngle; // Set car's initial angle based on the track direction
+      setCar(car);
       setCarPos(track.points[0]); // Set car at the first point (first checkpoint)
       setCurrentCheckpoint(track.points[0]);
     }
   };
 
-  // Capture key events and send control signals to Flask backend
+  // Capture key events and move the car based on those
   useEffect(() => {
     const handleKeyDown = (event) => {
       let throttle = 0;
       let brake = 0;
       let steeringInput = 0;
-      const deltaTime = 1.0;
+
+      // Reduce deltaTime to make smaller increments
+      const deltaTime = 0.1;  // Smaller increments
 
       if (event.key === 'ArrowUp') {
-        throttle = 1.0;
+        setAccelerating(true);
+        throttle = 0.5;  // Lower throttle for smaller increments
       } else if (event.key === 'ArrowDown') {
-        brake = 1.0;
+        setBraking(true);
+        brake = 0.5; // Lower brake force
       } else if (event.key === 'ArrowLeft') {
-        steeringInput = -1.0;
+        setLeftPressed(true);
+        setRightPressed(false);
+        steeringInput = -0.5; // Reduce steering increment
       } else if (event.key === 'ArrowRight') {
-        steeringInput = 1.0;
+        setRightPressed(true);
+        setLeftPressed(false);
+        steeringInput = 0.5;
       }
 
-      console.log(`Key pressed: ${event.key}, Throttle: ${throttle}, Brake: ${brake}, Steering: ${steeringInput}`);
+      if (car) {
+        if (throttle > 0) {
+          car.applyThrottle(throttle, deltaTime);
+        } else if (!accelerating && !braking) {
+          car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
+        }
 
-      if (throttle > 0) {
-        sendCarState('apply_throttle', { throttle, deltaTime });
-      }
+        if (brake > 0) {
+          car.applyBrake(brake, deltaTime);
+        } else if (!braking && !accelerating) {
+          // Simulate natural friction (slows down gradually)
+          car.applyBrake(0.1, deltaTime); 
+        }
 
-      if (brake > 0) {
-        sendCarState('apply_brake', { brake, deltaTime });
-      }
+        if (steeringInput !== 0) {
+          car.updateSteering(steeringInput, deltaTime);
+        }
 
-      if (steeringInput !== 0) {
-        sendCarState('update_steering', { steeringInput, deltaTime });
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-
-    return () => {
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [carPos, currentCheckpoint, checkpoints, track]);
-
-  const sendCarState = (action, data) => {
-    fetch(`http://127.0.0.1:5000/api/${action}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    })
-      .then((response) => response.json())
-      .then((data) => {
-        console.log(`Action: ${action}, Response:`, data); // Log the API response
-        const newCarPos = [data.positionX, data.positionY];
-        console.log(`New car position: ${newCarPos}, Current velocity: ${data.velocity}`);
+        car.updatePosition(deltaTime);
+        const newCarPos = [car.getPositionX(), car.getPositionY()];
 
         if (!track.isCarWithinTrack(newCarPos, carRadius)) {
           console.log('Car went off track. Resetting to last checkpoint.');
@@ -280,11 +315,39 @@ const CarTest = () => {
             }
           });
         }
-      })
-      .catch((err) => {
-        console.error('API request failed:', err);
-      });
-  };
+      }
+    };
+
+    const handleKeyUp = (event) => {
+      if (event.key === 'ArrowUp') {
+        setAccelerating(false);
+      } else if (event.key === 'ArrowDown') {
+        setBraking(false);
+      } else if (event.key === 'ArrowLeft') {
+        setLeftPressed(false);
+      } else if (event.key === 'ArrowRight') {
+        setRightPressed(false);
+      }
+    };
+
+    const resetSteering = () => {
+      if (car && !leftPressed && !rightPressed) {
+        const deltaTime = 0.1;
+        car.updateSteering(0, deltaTime); // Gradually return steering to neutral
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    const interval = setInterval(resetSteering, 100); // Call resetSteering every 100ms to gradually reset the angle
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+      clearInterval(interval); // Clear the interval when the component unmounts
+    };
+  }, [car, carPos, currentCheckpoint, checkpoints, track, leftPressed, rightPressed, accelerating, braking]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
