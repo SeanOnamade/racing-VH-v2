@@ -44,9 +44,9 @@ const App:React.FC = () => {
           }
         /> */}
         <Route path="/" element={<h1>Home Page</h1>} />
-        <Route path="/zander" element={<CarTest />} />
-        <Route path="/ethan" element={<RacingLines />} />
-        <Route path="/ethan/validTrack" element={<ValidTrack />} />
+        {/* <Route path="/zander" element={<CarTest />} /> */}
+        <Route path="/draw" element={<RacingLines />} />
+        <Route path="/race" element={<ValidTrack />} />
 
         {/* Auth Route */}
         <Route path="/auth" element={<AuthPage />} />
