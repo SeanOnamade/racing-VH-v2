@@ -4,6 +4,7 @@ import logo from './logo.svg';
 import './App.css';
 import RacingLines from './pages/racingLineCreation/racingLines';
 import ValidTrack from './pages/racingLineCreation/validTrack';
+import CarTest from './pages/racingLineCreation/carTest';
 
 // Main App component
 function App() {
@@ -31,7 +32,7 @@ function App() {
           }
         />
         <Route path="/ethan" element={<RacingLines />} />
-        <Route path="/zander" element={<RacingLines />} />
+        <Route path="/zander" element={<CarTest />} />
         <Route path="/ethan/validTrack" element={<ValidTrack />} />
       </Routes>
     </Router>
