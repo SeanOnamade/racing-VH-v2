@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
         </li>
         <li>
           <NavLink 
-            to="/ethan" 
+            to="/draw" 
             className={({ isActive }) => 
               `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
@@ -72,7 +72,7 @@ const Navbar: React.FC = () => {
           <>
             <li>
               <NavLink 
-                to="/ethan/validTrack" 
+                to="/race" 
                 className={({ isActive }) => 
                   `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
