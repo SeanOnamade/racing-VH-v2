@@ -35,18 +35,21 @@ const AuthPage: React.FC = () => {
   };
 
   return (
-    <div className="auth-page">
+    <div className="flex auth-page min-h-screen items-center bg-slate-100 justify-center">
+            <div className="bg-white shadow-md rounded-lg px-8 pt-6 pb-8 mb-4 max-w-md w-full">
+
       <div className={`auth-container ${isLoginMode ? 'login-mode' : 'signup-mode'}`}>
         {/* Signup Section */}
         {!isLoginMode && (
           <form onSubmit={handleSubmit}>
-            <h2>Signup</h2>
+            <h2 className="text-center text-2xl font-bold mb-4">Signup</h2>
             <input
               type="text"
               name="username"
               placeholder="Username"
               value={formData.username}
               onChange={handleChange}
+              className="rounded-lg bg-white border-solid border-2 p-5 w-full mb-4"
               required
             />
             <input
@@ -55,6 +58,7 @@ const AuthPage: React.FC = () => {
               placeholder="Email"
               value={formData.email}
               onChange={handleChange}
+              className="rounded-lg bg-white border-solid border-2 p-5 w-full mb-4"
               required
             />
             <input
@@ -63,18 +67,20 @@ const AuthPage: React.FC = () => {
               placeholder="Password"
               value={formData.password}
               onChange={handleChange}
+              className="rounded-lg bg-white border-solid border-2 p-5 w-full mb-4"
               required
             />
-            <button type="submit">Signup</button>
-            <p>Already have an account? <button type="button" onClick={switchMode}>Login</button></p>
+            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full" type="submit">Signup</button>
+            <p className='text-center mt-4'> <button type="button" onClick={switchMode}> Already have an account? Login</button></p>
           </form>
         )}
 
         {/* Login Section */}
         {isLoginMode && (
-          <form onSubmit={handleSubmit}>
-            <h2>Login</h2>
+          <form onSubmit={handleSubmit} className='space-x-2'>
+            <h2 className='text-center text-2xl font-bold mb-4'>Login</h2>
             <input
+              className="rounded-lg bg-white border-solid border-2 p-5 w-full mb-4"
               type="email"
               name="email"
               placeholder="Email"
@@ -83,6 +89,7 @@ const AuthPage: React.FC = () => {
               required
             />
             <input
+              className="rounded-lg bg-white border-solid border-2 p-5 w-full mb-4"
               type="password"
               name="password"
               placeholder="Password"
@@ -90,10 +97,11 @@ const AuthPage: React.FC = () => {
               onChange={handleChange}
               required
             />
-            <button type="submit">Login</button>
-            <p>New here? <button type="button" onClick={switchMode}>Signup</button></p>
+            <button className="bg-blue-500 text-white py-2 px-4 rounded-lg w-full" type="submit">Login</button>
+            <p className='text-center mt-4'> <button type="button" onClick={switchMode}> New here? Signup</button></p>
           </form>
         )}
+      </div>
       </div>
     </div>
   );

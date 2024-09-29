@@ -15,7 +15,11 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
     const verified = jwt.verify(token, process.env.JWT_SECRET!);
     req.user = (verified as jwt.JwtPayload).id; // Set only the id from the token payload
     next();
-  } catch (err) {
+  } catch (err: any) { // this section handles if the token expires lol
+    if (err.name === 'TokenExpiredError') {
+      console.error('Token expired:', err);
+      return res.status(401).json({ message: 'Token expired. Please log in again.' });
+    }
     console.error('Token verification failed:', err);
     res.status(400).json({ message: 'Invalid token' });
   }

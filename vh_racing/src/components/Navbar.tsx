@@ -4,7 +4,6 @@ import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import SignOut from './SignOut';
 
-
 const Navbar: React.FC = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token')); // State to manage token
 
@@ -35,9 +34,9 @@ const Navbar: React.FC = () => {
     <nav className="bg-gray-800 p-4">
       <ul className="flex space-x-4">
         <li>
-          <NavLink
-            to="/"
-            className={({ isActive }) =>
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => 
               `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
@@ -45,9 +44,9 @@ const Navbar: React.FC = () => {
           </NavLink>
         </li>
         <li>
-          <NavLink
-            to="/ethan"
-            className={({ isActive }) =>
+          <NavLink 
+            to="/ethan" 
+            className={({ isActive }) => 
               `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
@@ -58,9 +57,9 @@ const Navbar: React.FC = () => {
 
         {!token && (
           <li>
-            <NavLink
-              to="/auth"
-              className={({ isActive }) =>
+            <NavLink 
+              to="/auth" 
+              className={({ isActive }) => 
                 `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
               }
             >
@@ -69,13 +68,12 @@ const Navbar: React.FC = () => {
           </li>
         )}
 
-
         {token && (
           <>
             <li>
-              <NavLink
-                to="/zander"
-                className={({ isActive }) =>
+              <NavLink 
+                to="/zander" 
+                className={({ isActive }) => 
                   `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
               >
@@ -83,9 +81,9 @@ const Navbar: React.FC = () => {
               </NavLink>
             </li>
             <li>
-              <NavLink
-                to="/ethan/validTrack"
-                className={({ isActive }) =>
+              <NavLink 
+                to="/ethan/validTrack" 
+                className={({ isActive }) => 
                   `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
               >

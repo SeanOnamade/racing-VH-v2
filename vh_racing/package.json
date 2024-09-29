@@ -27,6 +27,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
+    "postbuild": "npx tailwindcss -o ./src/output.css",
+    "poststart": "npx tailwindcss -o ./src/output.css",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "start-server": "npx tsc && node dist/server.js"
@@ -59,6 +61,9 @@
     "@types/bcryptjs": "^2.4.6",
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.7",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
     "ts-node": "^10.9.2",
     "typescript": "^5.6.2"
   }

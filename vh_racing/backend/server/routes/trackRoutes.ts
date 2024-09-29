@@ -38,7 +38,7 @@ router.post('/save', verifyToken, async (req, res) => {
 // Route to load all saved tracks for a user
 router.get('/load', verifyToken, async (req, res) => {
     const userId = req.user;  // req.user is now just the userId
- 
+  
     try {
       const tracks = await Track.find({ userId });
       res.json(tracks);
@@ -52,10 +52,8 @@ router.get('/load', verifyToken, async (req, res) => {
       }
     }
   });
- 
- 
-
-
+  
+  
 
 
 export default router;
