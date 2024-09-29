@@ -1,14 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
-import logo from './logo.svg';
 import './App.css';
-import Signup from './pages/Signup';
-import Login from './pages/Login';
 import RacingLines from './pages/racingLineCreation/racingLines';
 import ValidTrack from './pages/racingLineCreation/validTrack';
-import CarTest from './pages/racingLineCreation/carTest';
-import Navbar from './components/Navbar';  // Import the Navbar component
+import Navbar from './components/Navbar';
 import AuthPage from './pages/AuthPage';
+import HomePage from './pages/HomePage';
 
 // Main App component
 const App:React.FC = () => {
@@ -43,7 +40,7 @@ const App:React.FC = () => {
             </div>
           }
         /> */}
-        <Route path="/" element={<h1>Home Page</h1>} />
+        <Route path="/" element={<HomePage />} />
         {/* <Route path="/zander" element={<CarTest />} /> */}
         <Route path="/draw" element={<RacingLines />} />
         <Route path="/race" element={<ValidTrack />} />
