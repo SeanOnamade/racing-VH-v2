@@ -17,7 +17,7 @@ class Track {
 
   closeTrack() {
     if (this.points.length) {
-      this.points.push(this.points[0]);
+      this.points.push(this.points[0]); // Close the track by connecting the last point to the first
     }
   }
 
@@ -66,10 +66,6 @@ class Track {
       }
     }
   }
-
-  getPointsCount() {
-    return this.points.length;
-  }
 }
 
 const TrackDrawingApp = () => {
@@ -80,16 +76,17 @@ const TrackDrawingApp = () => {
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [reloadTracks, setReloadTracks] = useState(false); // State to trigger reloading the track list
   const [savedYet, setSavedYet] = useState(false); // Initialize savedYet
-  const navigate = useNavigate();
+  const navigate = useNavigate(); // for navigation to /race
 
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     const draw = () => {
-      ctx.fillStyle = 'rgb(4, 112, 0)';
+      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
+      ctx.fillStyle = 'rgba(0, 128, 0, 0.5)'; // Slight greenish transparent background for canvas
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      track.draw(ctx);
+      track.draw(ctx); // Draw the current track
     };
 
     draw();
@@ -100,9 +97,9 @@ const TrackDrawingApp = () => {
       setIsDrawing(true);
       const rect = canvasRef.current.getBoundingClientRect();
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
-      track.clear();
-      track.addPoint(pos);
-      setTrack(new Track(track.streetDiameter));
+      track.clear(); // Clear the current track when starting a new one
+      track.addPoint(pos); // Add the starting point
+      setTrack(new Track(track.streetDiameter)); // Reset the track state
     }
   };
 
@@ -111,7 +108,10 @@ const TrackDrawingApp = () => {
       setIsDrawing(false);
       const rect = canvasRef.current.getBoundingClientRect();
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
+
       track.closeTrack();
+      track.addPoint(pos); // Add the final point
+      track.closeTrack(); // Close the track by connecting the last point to the first
       setTrackDrawnYet(true);
       setTrack(prevTrack => {
         const updatedTrack = new Track(prevTrack.streetDiameter);
@@ -133,7 +133,7 @@ const TrackDrawingApp = () => {
       ];
   
       setMousePos(pos);
-      track.addPoint(pos);
+      track.addPoint(pos); // Add points as the mouse moves
       setTrack(prevTrack => {
         const updatedTrack = new Track(prevTrack.streetDiameter);
         updatedTrack.points = [...prevTrack.points];
@@ -144,7 +144,7 @@ const TrackDrawingApp = () => {
   
 
   const saveTrack = async () => {
-    if (savedYet) return;
+    if (savedYet) return; // Prevent duplicate saves
     const { filename, trackData } = track.save();
     const token = localStorage.getItem('token');
 
@@ -152,21 +152,12 @@ const TrackDrawingApp = () => {
       console.error('Token is missing; you are signed out');
       return;
     }
-    else {
-      console.log('Token is present!');
-    }
-
-    console.log('Token:', token);
 
     try {
-      const wrappedData = {
-        trackData: trackData,
-      };
+      const wrappedData = { trackData };
 
       await axios.post('http://localhost:5000/api/tracks/save', wrappedData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
       alert('Track saved to your profile!');
 
@@ -176,7 +167,7 @@ const TrackDrawingApp = () => {
       link.download = filename;
       link.click();
       setSavedYet(true);
-      setReloadTracks(!reloadTracks);
+      setReloadTracks(!reloadTracks); // Trigger track list reload
     } catch (error) {
       console.error('Failed to save track:', error);
     }
@@ -185,29 +176,7 @@ const TrackDrawingApp = () => {
   const loadTrackFromDB = (event) => {
     const trackData = event.target.files[0];
 
-    if (trackData && trackData.track) {
-      const loadedTrack = new Track(
-        trackData.streetDiameter || 20,
-        trackData.track.map(point => [point.x, point.y])
-      );
-      setTrack(loadedTrack);
-      setTrackDrawnYet(true);
-    } else if (trackData && trackData.trackData && trackData.trackData.track) {
-      const loadedTrack = new Track(
-        trackData.trackData.streetDiameter || 20,
-        trackData.trackData.track.map(point => [point.x, point.y])
-      );
-      setTrack(loadedTrack);
-      setTrackDrawnYet(true);
-    } else {
-      console.error('Invalid track data', trackData);
-    }
-  };
-
-  const loadTrackFromFile = (event) => {
-    const file = event.target.files[0];
-
-    if (file) {
+    if (trackData) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
@@ -217,19 +186,11 @@ const TrackDrawingApp = () => {
           setTrack(loadedTrack);
           setTrackDrawnYet(true);
           setSavedYet(true);
-        } else if (data && data.trackData && data.trackData.track) {
-          const loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map(point => [point.x, point.y]));
-          setTrack(loadedTrack);
-          setTrackDrawnYet(true);
-          setSavedYet(true);
         } else {
           console.error('Invalid track data', data);
         }
-
-        event.target.value = null;
       };
-
-      reader.readAsText(file);
+      reader.readAsText(trackData);
     }
   };
 
@@ -241,31 +202,38 @@ const TrackDrawingApp = () => {
   };
 
   const handleValidateTrack = () => {
-    saveTrack();
+    // Save the track to local storage
+    const { trackData } = track.save();
+    localStorage.setItem('savedTrack', JSON.stringify(trackData));
+
+    // Navigate to the race page
     navigate('/race');
   };
 
   return (
-    <div className='transform scale-90'>
+    <div
+      className="min-h-screen bg-cover bg-center"
+      style={{ backgroundImage: "url('/track2.jpg')" }}
+    >
       <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
-        <div className='flex flex-col items-start max-h-screen overflow-auto '>
+        <div className='flex flex-col items-start max-h-screen overflow-auto'>
           <canvas
             ref={canvasRef}
             width={800}
             height={600}
             onMouseDown={handleMouseDown}
             onMouseMove={handleMouseMove}
-            onMouseUp={handleMouseUp} // Ensure mouse up event is handled
+            onMouseUp={handleMouseUp}
             className='rounded-lg'
             style={{ border: '1px solid black', marginBottom: '20px' }}
           />
           <div className='flex gap-5 items-start'>
-            <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
+            <button onClick={saveTrack} style={{ ...buttonStyle}} disabled={savedYet}>
               Save Track
             </button>
             <label style={buttonStyle}>
               Load Track
-              <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
+              <input type="file" onChange={loadTrackFromDB} style={{ display: 'none' }} />
             </label>
             <button onClick={resetTrack} style={buttonStyle}>Reset</button>
             <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>

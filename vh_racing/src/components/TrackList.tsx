@@ -66,7 +66,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
 
   return (
     <div>
-      <h3 className="text-center bg-slate-300 shadow-md rounded px-2 pt-2 pb-2 mb-4 ">Your Saved Tracks</h3>
+      <h3 className="text-center bg-slate-300 shadow-md rounded px-2 pt-2 pb-2 mb-4 " >Your Saved Tracks</h3>
       <ul>
         {/* Ensure tracks is an array before mapping */}
         {Array.isArray(tracks) && tracks.length > 0 ? (
@@ -78,7 +78,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
             </li>
           ))
         ) : (
-          <p>No tracks available</p>
+          <p style={{ color: 'white'}}>No tracks available</p>
         )}
       </ul>
     </div>
