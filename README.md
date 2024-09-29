@@ -166,12 +166,10 @@ Here are the significant changes I made from the original, which was created by 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-![Screenshot](https://github.com/SeanOnamade/weaponappv1/blob/master/Screenshot3.png)
-![Screenshot](https://github.com/SeanOnamade/weaponappv1/blob/master/Screenshot4.png)
-![Screenshot](https://github.com/SeanOnamade/weaponappv1/blob/master/Screenshot5.png)
-<p align="center">
-<img src="https://github.com/SeanOnamade/weaponappv1/blob/master/Screenshot_4.png" width="350" />
-</p>
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot3.png)
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot4.png)
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot5.png)
+
 
 
 <!-- CONTRIBUTING -->
