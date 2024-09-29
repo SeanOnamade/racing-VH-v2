@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
-import './Navbar.css';  // You can style your navbar using CSS
-import SignOut from './SignOut';  
-
+import SignOut from './SignOut';
 
 const Navbar: React.FC = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token')); // State to manage token
@@ -26,24 +24,37 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <nav className="navbar">
-      <ul>
+    <nav className="bg-gray-800 p-4">
+      <ul className="flex space-x-4">
         <li>
           <NavLink 
-            to="/" className={({ isActive }) => (isActive ? "active" : "")}>
+            to="/" 
+            className={({ isActive }) => 
+              `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+            }
+          >
             Home
           </NavLink>
         </li>
         <li>
           <NavLink 
-            to="/ethan" className={({ isActive }) => (isActive ? "active" : "")}>
+            to="/ethan" 
+            className={({ isActive }) => 
+              `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+            }
+          >
             Ethan's Page
           </NavLink>
         </li>
 
         {!token && (
           <li>
-            <NavLink to="/auth" className={({ isActive }) => (isActive ? "active" : "")}>
+            <NavLink 
+              to="/auth" 
+              className={({ isActive }) => 
+                `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+              }
+            >
               Login / Signup
             </NavLink>
           </li>
@@ -52,12 +63,22 @@ const Navbar: React.FC = () => {
         {token && (
           <>
             <li>
-              <NavLink to="/zander" className={({ isActive }) => (isActive ? "active" : "")}>
+              <NavLink 
+                to="/zander" 
+                className={({ isActive }) => 
+                  `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+                }
+              >
                 Zander's Page
               </NavLink>
             </li>
             <li>
-              <NavLink to="/ethan/validTrack" className={({ isActive }) => (isActive ? "active" : "")}>
+              <NavLink 
+                to="/ethan/validTrack" 
+                className={({ isActive }) => 
+                  `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+                }
+              >
                 Valid Track
               </NavLink>
             </li>
@@ -66,53 +87,6 @@ const Navbar: React.FC = () => {
             </li>
           </>
         )}
-
-
-        {/* Show Signup and Login only when the user is not logged in */}
-        {/* {!token && (
-          <>
-            <li>
-              <NavLink 
-                to="/signup" 
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                Signup
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
-                to="/login" 
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                Login
-              </NavLink>
-            </li>
-          </>
-        )} */}
-
-        {/* Show other links and SignOut button only when the user is logged in */}
-        {/* {token && (
-          <>
-            <li>
-              <NavLink 
-                to="/zander" 
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                Zander's Page
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
-                to="/ethan/validTrack" 
-                className={({ isActive }) => (isActive ? "active" : "")}
-              >
-                Valid Track
-              </NavLink>
-            </li>
-            <li>
-              <SignOut onSignOut={handleSignOut} /> </li> </>
-        )} */}
-        
       </ul>
     </nav>
   );
