@@ -1,34 +1,51 @@
-
-
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import SignOut from './SignOut';
 
+/**
+ * @definition Navbar
+ * @params None
+ * @returns JSX.Element
+ * Navbar component for handling navigation and user authentication state (logged in or logged out).
+ */
 const Navbar: React.FC = () => {
-  const [token, setToken] = useState<string | null>(localStorage.getItem('token')); // State to manage token
+  /**
+   * @state token
+   * @description State variable to store the authentication token from localStorage.
+   * @default The value of 'token' from localStorage.
+   */
+  const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
 
-
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Adds an event listener to detect changes in localStorage and updates the token state accordingly.
+   * Cleans up the event listener on component unmount.
+   */
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem('token')); // Update state when token changes
     };
 
-
     // Add event listener to handle localStorage changes
     window.addEventListener('storage', handleStorageChange);
-
 
     return () => {
       window.removeEventListener('storage', handleStorageChange); // Cleanup listener on component unmount
     };
   }, []);
 
-
+  /**
+   * @definition handleSignOut
+   * @params None
+   * @returns None
+   * Handles user sign-out by removing the token from localStorage and updating the token state.
+   */
   const handleSignOut = () => {
     localStorage.removeItem('token');  // Remove the token from localStorage
     setToken(null);  // Update state to reflect that user is logged out
   };
-
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -54,7 +71,7 @@ const Navbar: React.FC = () => {
           </NavLink>
         </li>
 
-
+        {/* Conditionally render the Login/Signup link if no token is present */}
         {!token && (
           <li>
             <NavLink 
@@ -68,6 +85,7 @@ const Navbar: React.FC = () => {
           </li>
         )}
 
+        {/* Conditionally render the Race link and SignOut component if a token is present */}
         {token && (
           <>
             <li>
@@ -89,6 +107,5 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
-
 
 export default Navbar;

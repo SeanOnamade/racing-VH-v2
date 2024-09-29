@@ -3,24 +3,47 @@ import axios from 'axios';
 import TrackList from '../../components/TrackList.tsx';
 import { useNavigate } from 'react-router-dom';
 
-// Track class definition
+/**
+ * @definition Track
+ * @params streetDiameter, points
+ * @returns Track object
+ * Track class representing a track that can be drawn, saved, and manipulated.
+ */
 class Track {
   constructor(streetDiameter = 50, points = []) {
-    this.points = points; // Initialize with passed points
-    this.drawing = false; // Flag for drawing state
-    this.streetDiameter = streetDiameter; // Diameter of the street
+    this.points = points;
+    this.drawing = false;
+    this.streetDiameter = streetDiameter;
   }
 
+  /**
+   * @definition addPoint
+   * @params pos
+   * @returns None
+   * Adds a point to the track.
+   */
   addPoint(pos) {
     this.points.push(pos);
   }
 
+  /**
+   * @definition closeTrack
+   * @params None
+   * @returns None
+   * Closes the track by connecting the last point to the first.
+   */
   closeTrack() {
     if (this.points.length) {
-      this.points.push(this.points[0]); // Close the track by connecting the last point to the first
+      this.points.push(this.points[0]);
     }
   }
 
+  /**
+   * @definition save
+   * @params None
+   * @returns Object
+   * Saves the track to a JSON object with a randomly generated filename.
+   */
   save() {
     const randomNumber = Math.floor(Math.random() * 9000) + 1000;
     const filename = `track_${randomNumber}.json`;
@@ -31,16 +54,34 @@ class Track {
     return { filename, trackData };
   }
 
+  /**
+   * @definition load
+   * @params data
+   * @returns None
+   * Loads a track from the provided data.
+   */
   load(data) {
     this.points = data.track.map(point => [point.x, point.y]);
     this.streetDiameter = data.streetDiameter || 10;
   }
 
+  /**
+   * @definition clear
+   * @params None
+   * @returns None
+   * Clears all points and resets the drawing state.
+   */
   clear() {
     this.points = [];
     this.drawing = false;
   }
 
+  /**
+   * @definition draw
+   * @params ctx
+   * @returns None
+   * Draws the track on the given canvas context.
+   */
   draw(ctx) {
     const colors = ['grey', 'black'];
     const widths = [this.streetDiameter + 10, this.streetDiameter];
@@ -68,41 +109,65 @@ class Track {
   }
 }
 
+/**
+ * @definition TrackDrawingApp
+ * @params None
+ * @returns JSX.Element
+ * React component for drawing, saving, and managing tracks.
+ */
 const TrackDrawingApp = () => {
   const canvasRef = useRef(null);
   const [track, setTrack] = useState(new Track());
   const [isDrawing, setIsDrawing] = useState(false);
   const [mousePos, setMousePos] = useState([0, 0]);
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
-  const [reloadTracks, setReloadTracks] = useState(false); // State to trigger reloading the track list
-  const [savedYet, setSavedYet] = useState(false); // Initialize savedYet
-  const navigate = useNavigate(); // for navigation to /race
+  const [reloadTracks, setReloadTracks] = useState(false);
+  const [savedYet, setSavedYet] = useState(false);
+  const navigate = useNavigate();
 
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Initializes the drawing on the canvas based on track state and mouse position.
+   */
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     const draw = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Clear the canvas before drawing
-      ctx.fillStyle = 'rgba(0, 128, 0, 0.5)'; // Slight greenish transparent background for canvas
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(0, 128, 0, 0.5)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      track.draw(ctx); // Draw the current track
+      track.draw(ctx);
     };
 
     draw();
   }, [track, mousePos, isDrawing]);
 
+  /**
+   * @definition handleMouseDown
+   * @params event
+   * @returns None
+   * Handles mouse down events for starting the drawing of the track.
+   */
   const handleMouseDown = (event) => {
     if (!isDrawing && !trackDrawnYet) {
       setIsDrawing(true);
       const rect = canvasRef.current.getBoundingClientRect();
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
-      track.clear(); // Clear the current track when starting a new one
-      track.addPoint(pos); // Add the starting point
-      setTrack(new Track(track.streetDiameter)); // Reset the track state
+      track.clear();
+      track.addPoint(pos);
+      setTrack(new Track(track.streetDiameter));
     }
   };
 
+  /**
+   * @definition handleMouseUp
+   * @params event
+   * @returns None
+   * Handles mouse up events for completing the drawing of the track.
+   */
   const handleMouseUp = (event) => {
     if (isDrawing) {
       setIsDrawing(false);
@@ -110,8 +175,8 @@ const TrackDrawingApp = () => {
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
 
       track.closeTrack();
-      track.addPoint(pos); // Add the final point
-      track.closeTrack(); // Close the track by connecting the last point to the first
+      track.addPoint(pos);
+      track.closeTrack();
       setTrackDrawnYet(true);
       setTrack(prevTrack => {
         const updatedTrack = new Track(prevTrack.streetDiameter);
@@ -121,6 +186,12 @@ const TrackDrawingApp = () => {
     }
   };
 
+  /**
+   * @definition handleMouseMove
+   * @params event
+   * @returns None
+   * Handles mouse move events for updating the track as the user moves the mouse.
+   */
   const handleMouseMove = (event) => {
     if (isDrawing && !trackDrawnYet) {
       const rect = canvasRef.current.getBoundingClientRect();
@@ -133,7 +204,7 @@ const TrackDrawingApp = () => {
       ];
   
       setMousePos(pos);
-      track.addPoint(pos); // Add points as the mouse moves
+      track.addPoint(pos);
       setTrack(prevTrack => {
         const updatedTrack = new Track(prevTrack.streetDiameter);
         updatedTrack.points = [...prevTrack.points];
@@ -141,10 +212,15 @@ const TrackDrawingApp = () => {
       });
     }
   };
-  
 
+  /**
+   * @definition saveTrack
+   * @params None
+   * @returns None
+   * Saves the drawn track to a file and backend.
+   */
   const saveTrack = async () => {
-    if (savedYet) return; // Prevent duplicate saves
+    if (savedYet) return;
     const { filename, trackData } = track.save();
     const token = localStorage.getItem('token');
 
@@ -167,12 +243,18 @@ const TrackDrawingApp = () => {
       link.download = filename;
       link.click();
       setSavedYet(true);
-      setReloadTracks(!reloadTracks); // Trigger track list reload
+      setReloadTracks(!reloadTracks);
     } catch (error) {
       console.error('Failed to save track:', error);
     }
   };
 
+  /**
+   * @definition loadTrackFromDB
+   * @params event
+   * @returns None
+   * Loads a track from the selected file.
+   */
   const loadTrackFromDB = (event) => {
     const trackData = event.target.files[0];
 
@@ -194,6 +276,12 @@ const TrackDrawingApp = () => {
     }
   };
 
+  /**
+   * @definition resetTrack
+   * @params None
+   * @returns None
+   * Resets the track to a blank state.
+   */
   const resetTrack = () => {
     track.clear();
     setTrack(new Track(track.streetDiameter));
@@ -201,12 +289,16 @@ const TrackDrawingApp = () => {
     setSavedYet(false);
   };
 
+  /**
+   * @definition handleValidateTrack
+   * @params None
+   * @returns None
+   * Saves the track and navigates to the race page.
+   */
   const handleValidateTrack = () => {
-    // Save the track to local storage
     const { trackData } = track.save();
     localStorage.setItem('savedTrack', JSON.stringify(trackData));
 
-    // Navigate to the race page
     navigate('/race');
   };
 

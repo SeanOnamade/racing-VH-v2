@@ -1,14 +1,30 @@
 import React, { useEffect, useState } from 'react';
 
+/**
+ * @definition HomePage
+ * @params None
+ * @returns JSX.Element
+ * HomePage component for rendering the main landing page of the web application.
+ * Includes animated side-to-side motion and background images.
+ */
 const HomePage = () => {
-  // State for animating side-to-side motion
+  /**
+   * @state isMoving
+   * @description State variable to control the animation of the page's side-to-side motion.
+   * @default false
+   */
   const [isMoving, setIsMoving] = useState(false);
 
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Sets a timer to trigger the side-to-side motion 2 seconds after the page loads.
+   */
   useEffect(() => {
-    // Trigger the side-to-side motion after the page has loaded
     const timer = setTimeout(() => {
       setIsMoving(true);
-    }, 2000); // Start the side-to-side motion after 2 seconds
+    }, 2000);
 
     return () => clearTimeout(timer);
   }, []);
@@ -16,6 +32,7 @@ const HomePage = () => {
   return (
     <div className="min-h-screen bg-cover bg-center flex flex-col justify-between relative items-center"
          style={{ backgroundImage: "url('/track.jpg')" }}>
+      
       {/* F1 Car Image behind the text */}
       <img 
         src="/f1car.png" 
@@ -37,7 +54,7 @@ const HomePage = () => {
           Welcome to Doodle Racing! The place where you can create the (pixelated!) racetrack of your dreams.
         </p>
         <p className="text-md text-gray-500 mb-8">
-          All your racing desires can come true. Make a circle track, or a track shaped like the Mona-Lisa THE WORLD (this webApp!) IS YOUR CANVAS!
+          All your racing desires can come true. Make a circle track, or a track shaped like the Mona-Lisa! THE WORLD (this webApp!) IS YOUR CANVAS!
         </p>
 
         <div className="flex space-x-4 mt-12">
