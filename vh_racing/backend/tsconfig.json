@@ -1,16 +1,3 @@
-// {
-//     "compilerOptions": {
-//       "target": "ES2020",
-//       "module": "CommonJS",
-//       "outDir": "./dist",
-//       "rootDir": "./src",
-//       "strict": true,
-//       "esModuleInterop": true
-//     },
-//     "include": ["src/**/*.ts"],
-//     "exclude": ["node_modules"]
-//   }
-  
 
 {
     "compilerOptions": {
@@ -22,7 +9,7 @@
       "esModuleInterop": true,
       "moduleResolution": "node"
     },
-    "include": ["server/**/*.ts"],  // Correct the path to include your TypeScript files
+    "include": ["server/**/*.ts", "src", "types/**/*.d.ts"],  // Correct the path to include your TypeScript files
     "exclude": ["node_modules"]
   }
   
