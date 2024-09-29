@@ -178,37 +178,71 @@ const TrackDrawingApp = () => {
 
   const loadTrackFromDB = (event) => {
     const trackData = event.target.files[0];
-    if (!trackData || !trackData.track) {
-      console.error('Invalid track data', trackData);
-      return;
-    }
-    console.log('Loaded trackData from DB:', trackData);
   
-    // Create a new Track instance with the loaded street diameter and points
-    const loadedTrack = new Track(
-      trackData.streetDiameter || 20, // Default streetDiameter if not provided
-      trackData.track.map(point => [point.x, point.y])
-    );
-    
-    setTrack(loadedTrack); // Update the state with the new track
-    setTrackDrawnYet(true); // Set to true after loading
+  
+    // Check if trackData is in old or new format
+    if (trackData && trackData.track) {
+      // Old format
+      console.log('Loaded trackData from DB (old format):', trackData);
+      const loadedTrack = new Track(
+        trackData.streetDiameter || 20, // Default streetDiameter if not provided
+        trackData.track.map(point => [point.x, point.y]) // Map track points
+      );
+      setTrack(loadedTrack); // Update the state with the new track
+      setTrackDrawnYet(true); // Set to true after loading
+    } else if (trackData && trackData.trackData && trackData.trackData.track) {
+      // New format
+      console.log('Loaded trackData from DB (new format):', trackData);
+      const loadedTrack = new Track(
+        trackData.trackData.streetDiameter || 20, // Default streetDiameter if not provided
+        trackData.trackData.track.map(point => [point.x, point.y]) // Map track points
+      );
+      setTrack(loadedTrack); // Update the state with the new track
+      setTrackDrawnYet(true); // Set to true after loading
+    } else {
+      console.error('Invalid track data', trackData);
+    }
   };
+  
 
   const loadTrackFromFile = (event) => {
     const file = event.target.files[0];
+  
+  
     if (file) {
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
-        const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
-        setTrack(loadedTrack);
-        setTrackDrawnYet(true);
-        setSavedYet(true); // ADDED
+  
+  
+        // Check if the file contains old or new format
+        if (data && data.track) {
+          // Old format
+          console.log('Loaded track from file (old format):', data);
+          const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
+          setTrack(loadedTrack);
+          setTrackDrawnYet(true);
+          setSavedYet(true);
+        } else if (data && data.trackData && data.trackData.track) {
+          // New format
+          console.log('Loaded track from file (new format):', data);
+          const loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map(point => [point.x, point.y]));
+          setTrack(loadedTrack);
+          setTrackDrawnYet(true);
+          setSavedYet(true);
+        } else {
+          console.error('Invalid track data', data);
+        }
+  
+  
         event.target.value = null;
       };
+  
+  
       reader.readAsText(file);
     }
   };
+  
 
   const resetTrack = () => {
     track.clear();
