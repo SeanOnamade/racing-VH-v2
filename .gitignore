@@ -3,3 +3,4 @@ dist/
 .idea
 .vscode
 src/__pycahce__/
+/node_modules
