@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from 'react';
 import { NavLink } from 'react-router-dom';
 import SignOut from './SignOut';
@@ -5,23 +7,28 @@ import SignOut from './SignOut';
 const Navbar: React.FC = () => {
   const [token, setToken] = useState<string | null>(localStorage.getItem('token')); // State to manage token
 
+
   useEffect(() => {
     const handleStorageChange = () => {
       setToken(localStorage.getItem('token')); // Update state when token changes
     };
 
+
     // Add event listener to handle localStorage changes
     window.addEventListener('storage', handleStorageChange);
+
 
     return () => {
       window.removeEventListener('storage', handleStorageChange); // Cleanup listener on component unmount
     };
   }, []);
 
+
   const handleSignOut = () => {
     localStorage.removeItem('token');  // Remove the token from localStorage
     setToken(null);  // Update state to reflect that user is logged out
   };
+
 
   return (
     <nav className="bg-gray-800 p-4">
@@ -38,14 +45,15 @@ const Navbar: React.FC = () => {
         </li>
         <li>
           <NavLink 
-            to="/ethan" 
+            to="/draw" 
             className={({ isActive }) => 
               `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
-            Ethan's Page
+            Draw
           </NavLink>
         </li>
+
 
         {!token && (
           <li>
@@ -64,22 +72,12 @@ const Navbar: React.FC = () => {
           <>
             <li>
               <NavLink 
-                to="/zander" 
+                to="/race" 
                 className={({ isActive }) => 
                   `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
               >
-                Zander's Page
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
-                to="/ethan/validTrack" 
-                className={({ isActive }) => 
-                  `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
-                }
-              >
-                Valid Track
+                Race
               </NavLink>
             </li>
             <li className='text-white px-4 rounded hover:bg-gray-600'>
@@ -91,5 +89,6 @@ const Navbar: React.FC = () => {
     </nav>
   );
 };
+
 
 export default Navbar;
