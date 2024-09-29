@@ -32,23 +32,22 @@ router.post('/save', verifyToken, async (req, res) => {
 
 // Route to load all saved tracks for a user
 router.get('/load', verifyToken, async (req, res) => {
-    const userId = req.user;
+    const userId = req.user;  // req.user is now just the userId
   
     try {
       const tracks = await Track.find({ userId });
       res.json(tracks);
     } catch (error) {
-      // Check if error is an instance of Error and log the error message
       if (error instanceof Error) {
-        console.error('Error fetching tracks for user:', userId, error.message); // Log the error message
+        console.error('Error fetching tracks for user:', userId, error.message);
         res.status(500).json({ error: 'Failed to load tracks', details: error.message });
       } else {
-        // Handle case where error is not an instance of Error
         console.error('Unknown error occurred:', error);
         res.status(500).json({ error: 'Failed to load tracks' });
       }
     }
   });
+  
   
 
 

@@ -223,33 +223,36 @@ const TrackDrawingApp = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={600}
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-        style={{ border: '1px solid black', marginBottom: '20px' }}
-      />
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
-          Save Track
-        </button>
-        {/* <button onClick={saveTrack} style={buttonStyle}>Save Track</button> */}
-        <label style={buttonStyle}>
-          Load Track
-          <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
-        </label>
-        <button onClick={resetTrack} style={buttonStyle}>Reset</button>
-        <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+    <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
+      <div className='flex flex-col items-start'>
+        <canvas
+          ref={canvasRef}
+          width={800}
+          height={600}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+          style={{ border: '1px solid black', marginBottom: '20px' }}
+        />
+        <div className='flex gap-5 items-start'>
+          <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
+            Save Track
+          </button>
+          {/* <button onClick={saveTrack} style={buttonStyle}>Save Track</button> */}
+          <label style={buttonStyle}>
+            Load Track
+            <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
+          </label>
+          <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+          <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+        </div>
       </div>
+
       {/* Display savedYet value */}
-      <div style={{ marginTop: '20px', fontSize: '18px' }}>
-        Saved Yet: {savedYet.toString()}
+      <div className="flex justify-center flex-col items-center" style={{ marginTop: '20px', fontSize: '18px' }}>
+        {/* Saved Yet: {savedYet.toString()} */}
+        <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
       </div>
-      <TrackList loadTrack={loadTrackFromDB} reloadTracks={reloadTracks} />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 
+
 // Define a Track type with _id and trackData fields
 interface Track {
   _id: string;
@@ -41,8 +42,19 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
         // Ensure the response data is an array of tracks
         const trackData = Array.isArray(res.data) ? res.data : [];
         setTracks(trackData); // Set tracks or empty array
-      } catch (error) {
-        console.error('Failed to load tracks:', error);
+        } catch (error: any) { // better error handling!
+        // Handle token expiration and other errors
+        if (error.response && error.response.status === 400) {
+          const errorMessage = error.response.data.message;
+
+          if (errorMessage.includes('Invalid token')) {
+            console.error('Token has expired. Please log in again.');
+          } else {
+            console.error('Bad request:', errorMessage);
+          }
+        } else {
+          console.error('Failed to load tracks:', error);
+        }
         setTracks([]); // Set empty array if error occurs
       }
     };
@@ -54,13 +66,13 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
 
   return (
     <div>
-      <h3>Your Saved Tracks</h3>
+      <h3 className="text-center">Your Saved Tracks</h3>
       <ul>
         {/* Ensure tracks is an array before mapping */}
         {Array.isArray(tracks) && tracks.length > 0 ? (
           tracks.map(track => (
             <li key={track._id}>
-              <button onClick={() => loadTrack({ target: { files: [track.trackData] } })}>
+              <button className="text-sm bg-blue-500 text-white py-2  mb-2 px-4 rounded-lg max-w-full" onClick={() => loadTrack({ target: { files: [track.trackData] } })}>
                 Load Track #{track._id}
               </button>
             </li>

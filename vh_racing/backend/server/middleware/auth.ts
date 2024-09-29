@@ -8,13 +8,14 @@ export const verifyToken = (req: Request, res: Response, next: NextFunction) => 
   if (!token) return res.status(401).json({ message: 'Access Denied. No token provided.' });
 
   try {
-    console.log('Token:', token);
-    console.log('JWT_SECRET:', process.env.JWT_SECRET);
     const verified = jwt.verify(token, process.env.JWT_SECRET!);
-    // @ts-ignore
-    req.user = verified;  // Attach the verified user to the request object
+    req.user = (verified as jwt.JwtPayload).id; // Set only the id from the token payload
     next();
-  } catch (err) {
+  } catch (err: any) { // this section handles if the token expires lol
+    if (err.name === 'TokenExpiredError') {
+      console.error('Token expired:', err);
+      return res.status(401).json({ message: 'Token expired. Please log in again.' });
+    }
     console.error('Token verification failed:', err);
     res.status(400).json({ message: 'Invalid token' });
   }
