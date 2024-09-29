@@ -37,7 +37,7 @@ const Navbar: React.FC = () => {
           <NavLink 
             to="/" 
             className={({ isActive }) => 
-              `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+              `text-white px-4 py-2 rounded transition ease-in-out duration-150 ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
             Home
@@ -47,7 +47,7 @@ const Navbar: React.FC = () => {
           <NavLink 
             to="/draw" 
             className={({ isActive }) => 
-              `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+              `text-white px-4 py-2 rounded transition ease-in-out duration-150 ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
             Draw
@@ -60,7 +60,7 @@ const Navbar: React.FC = () => {
             <NavLink 
               to="/auth" 
               className={({ isActive }) => 
-                `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+                `text-white px-4 py-2 rounded transition ease-in-out duration-150 ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
               }
             >
               Login / Signup
@@ -74,7 +74,7 @@ const Navbar: React.FC = () => {
               <NavLink 
                 to="/race" 
                 className={({ isActive }) => 
-                  `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
+                  `text-white px-4 py-2 rounded transition ease-in-out duration-150 ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
               >
                 Race

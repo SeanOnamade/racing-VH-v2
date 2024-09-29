@@ -215,8 +215,8 @@ const TrackDrawingApp = () => {
       className="min-h-screen bg-cover bg-center"
       style={{ backgroundImage: "url('/track2.jpg')" }}
     >
-      <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center">
-        <div className='flex flex-col items-start max-h-screen overflow-auto'>
+      <div className="flex justify-center space-x-6 gap-40 flex-row-reverse min-h-screen items-center transform scale-90">
+        <div className='flex flex-col items-start max-h-screen overflow-x-hidden opacity-100'>
           <canvas
             ref={canvasRef}
             width={800}
@@ -225,18 +225,31 @@ const TrackDrawingApp = () => {
             onMouseMove={handleMouseMove}
             onMouseUp={handleMouseUp}
             className='rounded-lg'
-            style={{ border: '1px solid black', marginBottom: '20px' }}
+            style={{ marginBottom: '20px', opacity: '1' }}
           />
           <div className='flex gap-5 items-start'>
-            <button onClick={saveTrack} style={{ ...buttonStyle}} disabled={savedYet}>
+            <button className="hover:opacity-75" onClick={saveTrack} style={{ ...buttonStyle}} disabled={savedYet}>
               Save Track
             </button>
-            <label style={buttonStyle}>
+            <label className="transition ease-in-out duration-150 hover:opacity-75" style={buttonStyle}>
               Load Track
               <input type="file" onChange={loadTrackFromDB} style={{ display: 'none' }} />
             </label>
-            <button onClick={resetTrack} style={buttonStyle}>Reset</button>
-            <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+            <button className="hover:opacity-75" onClick={resetTrack} style={{
+              backgroundColor: 'green',
+              color: 'white',
+              padding: '10px 20px',
+              border: 'none',
+              borderRadius: '5px',
+              cursor: 'pointer',
+              fontSize: '16px',
+              textAlign: 'center',
+              paddingTop: '1.25rem',
+              paddingBottom: '1.25rem',
+              marginTop: '0.25rem',
+              textAlign: 'center',
+            }}>Reset</button>
+            <button className="hover:opacity-75" onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
           </div>
         </div>
 
