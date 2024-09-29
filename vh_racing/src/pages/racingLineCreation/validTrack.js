@@ -12,7 +12,7 @@ const createCar = (x, y, angle) => {
 const ValidTrack = () => {
   const [fileName, setFileName] = useState('');
   const canvasRef = useRef(null);
-  const originalWidth = 800;
+  const originalWidth = 853;
   const originalHeight = 600;
   const scaleFactor = 2; // Change this value to scale everything
 
@@ -27,6 +27,8 @@ const ValidTrack = () => {
   const [lastTime, setLastTime] = useState(performance.now());
   const [checkpoints, setCheckpoints] = useState([]);
   const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
+  const [overlayImage, setOverlayImage] = useState(null); // State for the overlay image
+
 
   const carRadius = track.streetDiameter / 4;
 
@@ -35,6 +37,13 @@ const ValidTrack = () => {
     const img = new Image();
     img.src = "/car.png";
     img.onload = () => setCarImage(img);
+  }, []);
+
+  // Load overlay image from public folder
+  useEffect(() => {
+    const img = new Image();
+    img.src = "/wasd.png"; // Change to your overlay image path
+    img.onload = () => setOverlayImage(img);
   }, []);
 
   // Load track from localStorage when component mounts
@@ -151,6 +160,18 @@ const ValidTrack = () => {
         }
 
         ctx.restore(); // Restore the context after scaling
+        // Draw the overlay image in the bottom left
+        if (overlayImage) {
+            const overlayWidth = 100; // Set desired width
+            const overlayHeight = 100; // Set desired height
+            ctx.save();
+            //ctx.globalAlpha = 0.5; // Set transparency
+            ctx.translate(-carPos[0], -carPos[1]);
+            ctx.drawImage(overlayImage, 0, canvas.height - overlayHeight, overlayWidth, overlayHeight);
+            ctx.restore();
+        }
+
+
       };
 
       draw();
@@ -271,12 +292,18 @@ const ValidTrack = () => {
         height={originalHeight}
         style={{ border: '1px solid black', marginBottom: '20px', display: 'block' }}
       />
-      <label style={buttonStyle}>
-        Load Track
-        <input type="file" accept=".json" onChange={loadTrack} style={{ display: 'none' }} />
-      </label>
+      <div style={{ display: 'flex', alignItems: 'center' }}>
+        <label style={buttonStyle}>
+          Load Track
+          <input type="file" accept=".json" onChange={loadTrack} style={{ display: 'none' }} />
+        </label>
+        <span style={{ marginLeft: '10px', fontSize: '16px', color: 'black' }}>
+          Use WASD to Control!
+        </span>
+      </div>
     </div>
   );
+  
 };
 
 const buttonStyle = {
