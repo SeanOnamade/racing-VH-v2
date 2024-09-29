@@ -2,7 +2,9 @@ import express from 'express';
 import { Track } from '../models/Track.js'; // Import the Track model
 import { verifyToken } from '../middleware/auth.js'; // JWT middleware to verify token
 
+
 const router = express.Router();
+
 
 // Route to save a new track
 router.post('/save', verifyToken, async (req, res) => {
@@ -11,9 +13,11 @@ router.post('/save', verifyToken, async (req, res) => {
   console.log('Saving track for user ID:', userId);
   console.log('Track data:', trackData);
 
+
   if (!trackData) {
     return res.status(400).json({ error: 'No track data provided' });
   }
+
 
   try {
     const newTrack = new Track({ userId, trackData });
@@ -29,6 +33,7 @@ router.post('/save', verifyToken, async (req, res) => {
     res.status(500).json({ error: 'Failed to save track' });
   }
 });
+
 
 // Route to load all saved tracks for a user
 router.get('/load', verifyToken, async (req, res) => {

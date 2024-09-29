@@ -106,7 +106,7 @@ class Car {
         this.velocity += this.acceleration * deltaTime;
         if (this.velocity > this.maxVelocity) this.velocity = this.maxVelocity;
 
-        console.log(`Throttle: ${throttle}, Acceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
+        //console.log(`Throttle: ${throttle}, Acceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
     }
 
     applyBrake(brakeForce, deltaTime) {
@@ -119,7 +119,7 @@ class Car {
             this.acceleration = 0.0;
         }
 
-        console.log(`Brake: ${brakeForce}, Deceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
+        //console.log(`Brake: ${brakeForce}, Deceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
     }
 
     updateSteering(steeringInput, deltaTime) {
@@ -130,7 +130,7 @@ class Car {
             this.steeringAngle = -this.maxSteeringAngle;
         }
 
-        console.log(`Steering input: ${steeringInput}, Steering angle (deg): ${this.radToDeg(this.steeringAngle)}`);
+        //console.log(`Steering input: ${steeringInput}, Steering angle (deg): ${this.radToDeg(this.steeringAngle)}`);
     }
 
     updatePosition(deltaTime) {
@@ -168,7 +168,7 @@ class Car {
             this.applyTireStress(this.steeringAngle, this.velocity, deltaTime);
         }
 
-        console.log(`Updated position: (${this.positionX}, ${this.positionY}), Velocity: ${this.velocity}, Steering angle: ${this.radToDeg(this.steeringAngle)}`);
+        //console.log(`Updated position: (${this.positionX}, ${this.positionY}), Velocity: ${this.velocity}, Steering angle: ${this.radToDeg(this.steeringAngle)}`);
     }
 
     updateTireTemperature(deltaTime) {
@@ -193,7 +193,7 @@ class Car {
             this.tireGrip = this.minTireGrip;
         }
 
-        console.log(`Tire temperature: ${this.tireTemperature}, Tire grip: ${this.tireGrip}`);
+        //console.log(`Tire temperature: ${this.tireTemperature}, Tire grip: ${this.tireGrip}`);
     }
 
     applyTireStress(steeringAngle, velocity, deltaTime) {
