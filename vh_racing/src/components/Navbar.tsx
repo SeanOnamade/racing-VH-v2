@@ -49,21 +49,22 @@ const Navbar: React.FC = () => {
           </li>
         )}
 
+        
         {token && (
           <>
-            <li>
-              <NavLink to="/zander" className={({ isActive }) => (isActive ? "active" : "")}>
-                Zander's Page
-              </NavLink>
-            </li>
             <li>
               <NavLink to="/ethan/validTrack" className={({ isActive }) => (isActive ? "active" : "")}>
                 Valid Track
               </NavLink>
             </li>
             <li>
-              <SignOut onSignOut={handleSignOut} />
-            </li>
+            <NavLink 
+              to="/auth" 
+              className={({ isActive }) => (isActive ? "active" : "")} // Same logic for "Sign Up" button
+            >
+              Login / Signup
+            </NavLink>
+          </li>
           </>
         )}
 

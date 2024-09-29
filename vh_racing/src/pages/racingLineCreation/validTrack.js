@@ -14,7 +14,7 @@ const ValidTrack = () => {
   const canvasRef = useRef(null);
   const originalWidth = 800;
   const originalHeight = 600;
-  const scaleFactor = 4; // Change this value to scale everything
+  const scaleFactor = 2; // Change this value to scale everything
 
   // CAR STUFF
   const [track, setTrack] = useState(new Track());
@@ -191,14 +191,32 @@ const ValidTrack = () => {
 
   const loadTrack = (event) => {
     const file = event.target.files[0];
+    
     if (file) {
       setFileName(file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
-        const jsonData = JSON.parse(e.target.result);
-        const loadedTrack = new Track(jsonData.streetDiameter, jsonData.track.map((point) => [point.x, point.y]));
+        const data = JSON.parse(e.target.result);
+        
+        // Check if the file contains old or new format
+        let loadedTrack;
+        if (data && data.track) {
+          // Old format
+          console.log('Loaded track from file (old format):', data);
+          loadedTrack = new Track(data.streetDiameter, data.track.map((point) => [point.x, point.y]));
+        } else if (data && data.trackData && data.trackData.track) {
+          // New format
+          console.log('Loaded track from file (new format):', data);
+          loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map((point) => [point.x, point.y]));
+        } else {
+          console.error('Invalid track data', data);
+          return; // Exit early if the format is invalid
+        }
+  
+        // Set the loaded track
         setTrack(loadedTrack);
-
+        setTrackDrawnYet(false);
+  
         setTrackDrawnYet(false);
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
@@ -213,6 +231,28 @@ const ValidTrack = () => {
       event.target.value = null;
     }
   };
+
+  /*
+ // Check if the file contains old or new format
+        if (data && data.track) {
+          // Old format
+          console.log('Loaded track from file (old format):', data);
+          const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
+          setTrack(loadedTrack);
+          setTrackDrawnYet(true);
+          setSavedYet(true);
+        } else if (data && data.trackData && data.trackData.track) {
+          // New format
+          console.log('Loaded track from file (new format):', data);
+          const loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map(point => [point.x, point.y]));
+          setTrack(loadedTrack);
+          setTrackDrawnYet(true);
+          setSavedYet(true);
+        } else {
+          console.error('Invalid track data', data);
+        }
+
+  */
 
   useEffect(() => {
     if (trackDrawnYet) {
