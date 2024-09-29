@@ -1,52 +1,61 @@
-import { Router, Request, Response } from 'express';
-import { Track } from '../models/Track.js';
-import { verifyToken } from '../middleware/auth.js';
-import { JwtPayload } from 'jsonwebtoken';  // Ensure you're importing JwtPayload
+import express from 'express';
+import { Track } from '../models/Track.js'; // Import the Track model
+import { verifyToken } from '../middleware/auth.js'; // JWT middleware to verify token
 
-const router = Router();
 
-// Example route to load tracks
-router.get('/load', verifyToken, async (req: Request, res: Response) => {
-  try {
-    const userId = (req.user as JwtPayload)?.id;  // Safely cast req.user as JwtPayload
+const router = express.Router();
 
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID not found' });
-    }
 
-    // Query tracks based on the userId
-    const tracks = await Track.find({ userId });
+// Route to save a new track
+router.post('/save', verifyToken, async (req, res) => {
+  const { trackData } = req.body;
+  const userId = req.user; // req.user is now typed properly
+  console.log('Saving track for user ID:', userId);
+  console.log('Track data:', trackData);
 
-    res.json({ tracks });
-  } catch (err) {
-    console.error('Error loading tracks:', (err as Error).message);  // Type 'err' as Error
-    res.status(500).json({ message: 'Failed to load tracks', details: (err as Error).message });
+
+  if (!trackData) {
+    return res.status(400).json({ error: 'No track data provided' });
   }
-});
 
-// Example route to save a track
-router.post('/save', verifyToken, async (req: Request, res: Response) => {
+
   try {
-    const userId = (req.user as JwtPayload)?.id;  // Safely cast req.user as JwtPayload
-
-    if (!userId) {
-      return res.status(400).json({ message: 'User ID not found' });
+    const newTrack = new Track({ userId, trackData });
+    if (!trackData) {
+        console.log("No trackData!")
     }
-
-    // Extract track data from the request
-    const { trackData } = req.body;
-
-    const newTrack = new Track({
-      userId,
-      trackData,
-    });
-
+    else {
+        console.log("trackdata here!")
+    }
     await newTrack.save();
     res.status(201).json({ message: 'Track saved successfully' });
-  } catch (err) {
-    console.error('Error saving track:', (err as Error).message);  // Type 'err' as Error
-    res.status(500).json({ message: 'Failed to save track', details: (err as Error).message });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to save track' });
   }
 });
+
+
+// Route to load all saved tracks for a user
+router.get('/load', verifyToken, async (req, res) => {
+    const userId = req.user;  // req.user is now just the userId
+ 
+    try {
+      const tracks = await Track.find({ userId });
+      res.json(tracks);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error fetching tracks for user:', userId, error.message);
+        res.status(500).json({ error: 'Failed to load tracks', details: error.message });
+      } else {
+        console.error('Unknown error occurred:', error);
+        res.status(500).json({ error: 'Failed to load tracks' });
+      }
+    }
+  });
+ 
+ 
+
+
+
 
 export default router;

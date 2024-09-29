@@ -24,6 +24,9 @@ const ValidTrack = () => {
   const [carImage, setCarImage] = useState(null);
   const [initialCarState, setInitialCarState] = useState(null);
   const [keys, setKeys] = useState({ W: false, S: false, A: false, D: false });
+  const [lastTime, setLastTime] = useState(performance.now());
+  const [checkpoints, setCheckpoints] = useState([]);
+  const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
 
   const carRadius = track.streetDiameter / 4;
 
@@ -57,39 +60,94 @@ const ValidTrack = () => {
     };
   }, []);
 
-  // Update car position and physics based on key inputs
   useEffect(() => {
-    const updateCarPosition = (deltaTime) => {
-      if (car) {
-        let throttle = keys.W ? 0.5 : 0;
-        let brake = keys.S ? 0.5 : 0;
-        let steeringInput = keys.A ? -0.5 : keys.D ? 0.5 : 0;
+    const now = performance.now();
+    const deltaTime = (now - lastTime) / 1000; // Calculate time difference in seconds
+    setLastTime(now);
 
-        if (throttle > 0) {
-          car.applyThrottle(throttle, deltaTime);
-        } else if (brake > 0) {
-          car.applyBrake(brake, deltaTime);
-        }
+    if (car) {
+      let throttle = keys.W ? 0.5 : 0;
+      let brake = keys.S ? 0.5 : 0;
+      let steeringInput = keys.A ? -0.5 : keys.D ? 0.5 : 0;
 
-        if (steeringInput !== 0) {
-          car.updateSteering(steeringInput, deltaTime);
-        }
-
-        car.updatePosition(deltaTime);
-        setCarPos([car.getPositionX(), car.getPositionY()]);
+      if (throttle > 0) {
+        car.applyThrottle(throttle, deltaTime);
+      } else if (!keys.E && !keys.S) {
+        car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
       }
-    };
 
-    let lastTime = performance.now();
-    const animationFrame = () => {
-      const now = performance.now();
-      const deltaTime = (now - lastTime) / 1000; // time difference in seconds
-      updateCarPosition(deltaTime);
-      lastTime = now;
-      requestAnimationFrame(animationFrame);
-    };
-    requestAnimationFrame(animationFrame);
-  }, [car, keys]);
+      if (brake > 0) {
+        car.applyBrake(brake, deltaTime);
+      } else if (!keys.W && !keys.S) {
+        car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
+      }
+
+      if (steeringInput !== 0) {
+        car.updateSteering(steeringInput, deltaTime);
+      } else {
+        // Gradually return the steering angle to zero if no keys are pressed
+        resetSteering(car, deltaTime);
+      }
+
+      car.updatePosition(deltaTime);
+      const newCarPos = [car.getPositionX(), car.getPositionY()];
+
+      if (!track.isCarWithinTrack(newCarPos, carRadius)) {
+        resetCarToStart(); // Reset to start position and orientation if car goes off track
+      } else {
+        setCarPos(newCarPos);
+        checkpoints.forEach((checkpoint, idx) => {
+          const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
+          if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
+            setCurrentCheckpoint(checkpoint);
+          }
+        });
+      }
+    }
+  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
+
+//   // Update car position and physics based on key inputs
+//   useEffect(() => {
+//     const updateCarPosition = (deltaTime) => {
+//       if (car) {
+//         let throttle = keys.W ? 0.5 : 0;
+//         let brake = keys.S ? 0.5 : 0;
+//         let steeringInput = keys.A ? -0.5 : keys.D ? 0.5 : 0;
+
+//         if (throttle > 0) {
+//             car.applyThrottle(throttle, deltaTime);
+//           } else if (!keys.W && !keys.S) {
+//             car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
+//           }
+    
+//           if (brake > 0) {
+//             car.applyBrake(brake, deltaTime);
+//           } else if (!keys.W && !keys.S) {
+//             car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
+//           }
+    
+//           if (steeringInput !== 0) {
+//             car.updateSteering(steeringInput, deltaTime);
+//           } else {
+//             // Gradually return the steering angle to zero if no keys are pressed
+//             resetSteering(car, deltaTime);
+//           }
+
+//         car.updatePosition(deltaTime);
+//         setCarPos([car.getPositionX(), car.getPositionY()]);
+//       }
+//     };
+
+//     let lastTime = performance.now();
+//     const animationFrame = () => {
+//       const now = performance.now();
+//       const deltaTime = (now - lastTime) / 1000; // time difference in seconds
+//       updateCarPosition(deltaTime);
+//       lastTime = now;
+//       requestAnimationFrame(animationFrame);
+//     };
+//     requestAnimationFrame(animationFrame);
+//   }, [car, keys]);
 
   // Draw the track and car
   useEffect(() => {
@@ -121,6 +179,15 @@ const ValidTrack = () => {
     }
   }, [track, carPos, carImage, trackDrawnYet, car]); // Add car to dependencies to re-render when car is set
 
+  // Handle steering reset to zero when no keys are pressed
+  const resetSteering = (car, deltaTime) => {
+    if (car.steeringAngle > 0) {
+      car.updateSteering(-0.2, deltaTime); // Gradually reduce the angle
+    } else if (car.steeringAngle < 0) {
+      car.updateSteering(0.2, deltaTime); // Gradually increase the angle
+    }
+  };
+  
   // Reset the car to its initial spawn position and orientation
   const resetCarToStart = () => {
     if (car && initialCarState) {
@@ -162,30 +229,35 @@ const ValidTrack = () => {
     }
   };
 
-  // Load the track from the file
   const loadTrack = (event) => {
     const file = event.target.files[0];
     if (file) {
-      setFileName(file.name);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const jsonData = JSON.parse(e.target.result);
-        const loadedTrack = new Track(jsonData.streetDiameter, jsonData.track.map((point) => [point.x, point.y]));
-        setTrack(loadedTrack);
-
-        // Wait for the track to be drawn before placing the car
-        setTrackDrawnYet(false); // Reset to false while loading
-        const canvas = canvasRef.current;
-        const ctx = canvas.getContext('2d');
-        resizeCanvas();
-        loadedTrack.drawScaled(ctx, scaleFactor);
-
-        setTrackDrawnYet(true); // Track is now drawn, so car can be placed
-      };
-      reader.readAsText(file);
-      event.target.value = null;
+        setFileName(file.name);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const jsonData = JSON.parse(e.target.result);
+            const loadedTrack = new Track(jsonData.streetDiameter, jsonData.track.map((point) => [point.x, point.y]));
+            setTrack(loadedTrack);
+  
+            // Wait for the track to be drawn before placing the car
+            setTrackDrawnYet(false); // Reset to false while loading
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            resizeCanvas();
+            loadedTrack.drawScaled(ctx, scaleFactor);
+  
+            // Delay setting trackDrawnYet to true until after drawing is complete
+            setTimeout(() => {
+                setTrackDrawnYet(true); // Track is now drawn, so car can be placed
+            }, 0); // Schedule this to run after the drawing operation
+        };
+        reader.readAsText(file);
+        event.target.value = null;
     }
-  };
+};
+
+
+  
 
   useEffect(() => {
     // Only drive the car if the track has been drawn
