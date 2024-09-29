@@ -69,7 +69,7 @@ const CarTest = () => {
 
   // Reset the car to its initial spawn position and orientation
   const resetCarToStart = () => {
-    if (car && initialCarState) {
+    if (car && `initialCarState`) {
       car.positionX = initialCarState.positionX;
       car.positionY = initialCarState.positionY;
       car.velocity = 0;

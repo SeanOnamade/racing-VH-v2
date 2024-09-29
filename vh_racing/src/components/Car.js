@@ -58,6 +58,7 @@ class Car {
         this.maxSteeringAngle = this.degToRad(45);
         this.steeringSpeed = this.degToRad(60);
     }
+    
 
     setMassCategory(mCat) {
         if (mCat === MassCategory.Light) {

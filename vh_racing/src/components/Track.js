@@ -9,7 +9,7 @@ class Track {
   
     static fromJSON(jsonData) {
       const points = jsonData.track.map((point) => [point.x, point.y]);
-      const streetDiameter = jsonData.streetDiameter || 40;
+      const streetDiameter = jsonData.streetDiameter || 60;
       return new Track(streetDiameter, points);
     }
   
@@ -68,6 +68,35 @@ class Track {
         }
       }
     }
+
+    drawScaled(ctx, scaleFactor) {
+      const colors = ['grey', 'black'];
+      const widths = [this.streetDiameter * scaleFactor + 10 * scaleFactor, this.streetDiameter * scaleFactor];
+  
+      if (this.points.length > 1) {
+          for (let i = 0; i < colors.length; i++) {
+              ctx.strokeStyle = colors[i];
+              ctx.lineWidth = widths[i];
+  
+              ctx.beginPath();
+              ctx.moveTo(this.points[0][0] * scaleFactor, this.points[0][1] * scaleFactor); // Scale points
+              for (let j = 1; j < this.points.length; j++) {
+                  ctx.lineTo(this.points[j][0] * scaleFactor, this.points[j][1] * scaleFactor); // Scale points
+              }
+              ctx.stroke();
+  
+              ctx.fillStyle = colors[i];
+              for (const point of this.points) {
+                  ctx.beginPath();
+                  ctx.arc(point[0] * scaleFactor, point[1] * scaleFactor, widths[i] / 2, 0, Math.PI * 2); // Scale points
+                  ctx.fill();
+              }
+          }
+      } else {
+          console.error("No points to draw.");
+      }
+  }
+  
   
     getDirection() {
       if (this.points.length > 1) {
