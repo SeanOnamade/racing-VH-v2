@@ -101,7 +101,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
             </li>
           ))
         ) : (
-          <p>No tracks available</p>
+          <p style={{ color: 'white'}}>No tracks available</p>
         )}
       </ul>
     </div>
