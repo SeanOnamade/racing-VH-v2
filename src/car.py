@@ -1,23 +1,21 @@
 from enum import Enum
 import math
 
+## LEGACY CODE ##
 
 class MassCategory(Enum):
     Light = 0
     Medium = 1
     Heavy = 2
 
-
 class TireType(Enum):
     Rain = 0
     Slick = 1
-
 
 class SurfaceType(Enum):
     Asphalt = 0
     Gravel = 1
     Ice = 2
-
 
 class Car:
     def __init__(self, mCat, tType, startX, startY):
