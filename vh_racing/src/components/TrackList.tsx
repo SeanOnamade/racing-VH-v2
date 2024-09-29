@@ -81,18 +81,18 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
 
   return (
     <div>
-      <h3 className="text-center bg-slate-300 shadow-md rounded px-2 pt-2 pb-2 mb-4">Your Saved Tracks</h3>
+      <h3 className="text-center bg-slate-300 shadow-md rounded-lg px-2 pt-2 pb-2 mb-4 opacity-75">Your Saved Tracks</h3>
       <ul className="flex flex-col items-center">
         {/* Ensure tracks is an array before mapping */}
         {Array.isArray(tracks) && tracks.length > 0 ? (
           tracks.map(track => (
             <li key={track._id} className="flex flex-col items-center mb-4">
                 <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                    <button className="text-sm bg-blue-500 text-white py-2 px-4 rounded-lg transition ease-in-out duration-150 hover:bg-slate-400" onClick={() => loadTrack({ target: { files: [track.trackData] } })}>
+                    <button className="text-sm bg-blue-500 text-white py-2 px-4 rounded-lg transition ease-in-out opacity-90 duration-150 hover:bg-slate-400" onClick={() => loadTrack({ target: { files: [track.trackData] } })}>
                         Load Track #{track._id}
                     </button>
                     <button
-                        className="text-sm bg-red-500 text-white py-2 mb-2 px-4 ml-2 rounded-lg transition ease-in-out duration-150 hover:bg-red-600"
+                        className="text-sm bg-red-500 text-white py-2 mb-2 px-4 ml-2 rounded-lg transition ease-in-out opacity-90 duration-150 hover:bg-red-600"
                         onClick={() => deleteTrack(track._id)}
                     >
                         Delete
