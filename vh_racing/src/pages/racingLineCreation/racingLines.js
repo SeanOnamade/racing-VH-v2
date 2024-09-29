@@ -1,4 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 // Track class definition
 class Track {
@@ -79,135 +80,139 @@ class Track {
   }
 }
 
-// React Component for the track drawing application
 const TrackDrawingApp = () => {
-  const canvasRef = useRef(null); // Reference to the canvas
-  const [track, setTrack] = useState(new Track()); // State for the current track
-  const [isDrawing, setIsDrawing] = useState(false); // State for drawing status
-  const [mousePos, setMousePos] = useState([0, 0]); // Store mouse position
-  const [trackDrawnYet, setTrackDrawnYet] = useState(false); // State to check if track is drawn
+  const canvasRef = useRef(null);
+  const [track, setTrack] = useState(new Track());
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [mousePos, setMousePos] = useState([0, 0]);
+  const [trackDrawnYet, setTrackDrawnYet] = useState(false);
+  const [savedYet, setSavedYet] = useState(false); // Initialize savedYet
+  const navigate = useNavigate(); // Initialize the navigate function
 
-  // Effect to draw on the canvas when the track or mouse position changes
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
 
     const draw = () => {
-      ctx.fillStyle = 'rgb(4, 112, 0)'; // Set the background color to green (RGB)
-      ctx.fillRect(0, 0, canvas.width, canvas.height); // Fill the canvas with the green color	
-      track.draw(ctx); // Draw the track on the canvas
+      ctx.fillStyle = 'rgb(4, 112, 0)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      track.draw(ctx);
     };
 
-    draw(); // Call the draw function
-  }, [track, mousePos, isDrawing]); // Dependencies for the effect
+    draw();
+  }, [track, mousePos, isDrawing]);
 
-  // Handler for mouse down event to start drawing
   const handleMouseDown = (event) => {
-    if (!isDrawing && !trackDrawnYet) { // Only draw if not already drawn
-      setIsDrawing(true); // Set drawing state to true
-      const rect = canvasRef.current.getBoundingClientRect(); // Get canvas position
-      const pos = [event.clientX - rect.left, event.clientY - rect.top]; // Calculate mouse position
-      track.clear(); // Clear the track before starting
-      track.addPoint(pos); // Add the starting point
-      setTrack(new Track(track.streetDiameter)); // Update track state
+    if (!isDrawing && !trackDrawnYet) {
+      setIsDrawing(true);
+      const rect = canvasRef.current.getBoundingClientRect();
+      const pos = [event.clientX - rect.left, event.clientY - rect.top];
+      track.clear();
+      track.addPoint(pos);
+      setTrack(new Track(track.streetDiameter));
     }
   };
 
-  // Handler for mouse up event to stop drawing
   const handleMouseUp = (event) => {
     if (isDrawing) {
-      setIsDrawing(false); // Set drawing state to false
-      const rect = canvasRef.current.getBoundingClientRect(); // Get canvas position
-      const pos = [event.clientX - rect.left, event.clientY - rect.top]; // Calculate mouse position
-      track.addPoint(pos); // Add the final point
-      track.closeTrack(); // Close the track
-      setTrackDrawnYet(true); // Set to true after drawing
+      setIsDrawing(false);
+      const rect = canvasRef.current.getBoundingClientRect();
+      const pos = [event.clientX - rect.left, event.clientY - rect.top];
+      track.addPoint(pos);
+      track.closeTrack();
+      setTrackDrawnYet(true);
       setTrack(prevTrack => {
-        const updatedTrack = new Track(prevTrack.streetDiameter); // Create a new Track instance
-        updatedTrack.points = [...prevTrack.points]; // Copy previous points
-        return updatedTrack; // Update track state
+        const updatedTrack = new Track(prevTrack.streetDiameter);
+        updatedTrack.points = [...prevTrack.points];
+        return updatedTrack;
       });
     }
   };
 
-  // Handler for mouse move event to track drawing
   const handleMouseMove = (event) => {
-    if (isDrawing && !trackDrawnYet) { // Only track mouse movement while drawing
-      const rect = canvasRef.current.getBoundingClientRect(); // Get canvas position
-      const pos = [event.clientX - rect.left, event.clientY - rect.top]; // Calculate mouse position
-      setMousePos(pos); // Update mouse position
-      track.addPoint(pos); // Add the new point
+    if (isDrawing && !trackDrawnYet) {
+      const rect = canvasRef.current.getBoundingClientRect();
+      const pos = [event.clientX - rect.left, event.clientY - rect.top];
+      setMousePos(pos);
+      track.addPoint(pos);
       setTrack(prevTrack => {
-        const updatedTrack = new Track(prevTrack.streetDiameter); // Create a new Track instance
-        updatedTrack.points = [...prevTrack.points]; // Copy previous points
-        return updatedTrack; // Update track state
+        const updatedTrack = new Track(prevTrack.streetDiameter);
+        updatedTrack.points = [...prevTrack.points];
+        return updatedTrack;
       });
     }
   };
 
-  // Method to save the current track to a JSON file
   const saveTrack = () => {
-    const { filename, trackData } = track.save(); // Get filename and track data
-    const blob = new Blob([JSON.stringify(trackData, null, 2)], { type: 'application/json' }); // Create blob
-    const link = document.createElement('a'); // Create link element
-    link.href = URL.createObjectURL(blob); // Create object URL for the blob
-    link.download = filename; // Set the download filename
-    link.click(); // Trigger download
+    if (savedYet) return; // Skip saving if savedYet is true
+
+    const { filename, trackData } = track.save();
+    const blob = new Blob([JSON.stringify(trackData, null, 2)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    link.click();
+    setSavedYet(true); // Set savedYet to true when saving
   };
 
-  // Method to load a track from a JSON file
   const loadTrack = (event) => {
-    const file = event.target.files[0]; // Get the selected file
+    const file = event.target.files[0];
     if (file) {
-      const reader = new FileReader(); // Create a file reader
+      const reader = new FileReader();
       reader.onload = (e) => {
-        const data = JSON.parse(e.target.result); // Parse JSON data
-        console.log("Loaded data:", data); // Debug log
-
-        // Create a new Track instance with the loaded street diameter and points
+        const data = JSON.parse(e.target.result);
         const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
-        setTrack(loadedTrack); // Update the state with the new track
-        setTrackDrawnYet(true); // Set to true after loading
-
-        // Reset the file input to allow loading the same track again
-        event.target.value = null; // Reset the file input
+        setTrack(loadedTrack);
+        setTrackDrawnYet(true);
+        setSavedYet(true); // Set savedYet to true when loading
+        event.target.value = null;
       };
-      reader.readAsText(file); // Read file as text
+      reader.readAsText(file);
     }
   };
 
-  // Method to reset the track
   const resetTrack = () => {
-    track.clear(); // Clear the track
-    setTrack(new Track(track.streetDiameter)); // Reset track state
-    setTrackDrawnYet(false); // Reset drawn state
+    track.clear();
+    setTrack(new Track(track.streetDiameter));
+    setTrackDrawnYet(false);
+    setSavedYet(false); // Set savedYet to false when resetting
   };
 
-  // Render the component
+  const handleValidateTrack = () => {
+    saveTrack(); // Save the track file when validating
+    navigate('/ethan/validTrack');
+  };
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
       <canvas
-        ref={canvasRef} // Reference to the canvas element
-        width={800} // Set canvas width
-        height={600} // Set canvas height
-        onMouseDown={handleMouseDown} // Mouse down event handler
-        onMouseUp={handleMouseUp} // Mouse up event handler
-        onMouseMove={handleMouseMove} // Mouse move event handler
-        style={{ border: '1px solid black', marginBottom: '20px' }} // Canvas styling
+        ref={canvasRef}
+        width={800}
+        height={600}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        style={{ border: '1px solid black', marginBottom: '20px' }}
       />
       <div style={{ display: 'flex', gap: '10px' }}>
-        <button onClick={saveTrack} style={buttonStyle}>Save Track</button> {/* Button to save track */}
+        <button onClick={saveTrack} style={{ ...buttonStyle, opacity: savedYet ? 0.5 : 1 }} disabled={savedYet}>
+          Save Track
+        </button>
         <label style={buttonStyle}>
           Load Track
-          <input type="file" onChange={loadTrack} style={{ display: 'none' }} /> {/* File input for loading track */}
+          <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
         </label>
-        <button onClick={resetTrack} style={buttonStyle}>Reset</button> {/* Button to reset track */}
+        <button onClick={resetTrack} style={buttonStyle}>Reset</button>
+        <button onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
+      </div>
+      {/* Display savedYet value */}
+      <div style={{ marginTop: '20px', fontSize: '18px' }}>
+        Saved Yet: {savedYet.toString()}
       </div>
     </div>
   );
 };
 
-// Button style as a rectangle with text
 const buttonStyle = {
   backgroundColor: 'green',
   color: 'white',
@@ -219,5 +224,4 @@ const buttonStyle = {
   textAlign: 'center',
 };
 
-// Export the TrackDrawingApp component as default
 export default TrackDrawingApp;
