@@ -104,6 +104,13 @@ class Track {
   }
 }
 
+// Modular car creation function
+const createCar = (x, y, angle) => {
+  const car = new Car(MassCategory.Medium, TireType.Slick, x, y);
+  car.angle = angle;
+  return car;
+};
+
 // React Component for the track drawing application
 const CarTest = () => {
   const canvasRef = useRef(null);
@@ -283,11 +290,11 @@ const CarTest = () => {
     setCurrentCheckpoint(null);
   };
 
+  // Handle driving the car and using the modular `createCar` function
   const handleDriveCar = () => {
     if (track.points.length > 0) {
       const initialAngle = track.getDirection();
-      const car = new Car(MassCategory.Medium, TireType.Slick, track.points[0][0], track.points[0][1]);
-      car.angle = initialAngle;
+      const car = createCar(track.points[0][0], track.points[0][1], initialAngle); // Call modularized car creation function
       setInitialCarState({ positionX: car.positionX, positionY: car.positionY, angle: car.angle });
       setCar(car);
       setCarPos(track.points[0]);
@@ -315,47 +322,47 @@ const CarTest = () => {
   }, []);
 
   return (
-      <div
-    style={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-      padding: '20px',
-      backgroundImage: 'url("/snow2.jpg")',
-      backgroundSize: 'contain', 
-      backgroundRepeat: 'no-repeat', 
-      backgroundPosition: 'center', 
-      minHeight: '100vh',
-      backgroundAttachment: 'fixed',
-    }}
-  >
-    <canvas
-      ref={canvasRef}
-      width={800}
-      height={600}
-      onMouseDown={handleMouseDown}
-      onMouseUp={handleMouseUp}
-      onMouseMove={handleMouseMove}
-      style={{border: '2px solid black', marginBottom: '20px', opacity: .9}}
-    />
-    <div style={{ display: 'flex', gap: '10px' }}>
-      <button onClick={saveTrack} style={buttonStyle}>
-        Save Track
-      </button>
-      <label style={buttonStyle}>
-        Load Track
-        <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
-      </label>
-      <button onClick={resetTrack} style={buttonStyle}>
-        Reset
-      </button>
-      {showDriveButton && (
-        <button onClick={handleDriveCar} style={buttonStyle}>
-          Drive Car
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        padding: '20px',
+        backgroundImage: 'url("/snow2.jpg")',
+        backgroundSize: 'contain', 
+        backgroundRepeat: 'no-repeat', 
+        backgroundPosition: 'center', 
+        minHeight: '100vh',
+        backgroundAttachment: 'fixed',
+      }}
+    >
+      <canvas
+        ref={canvasRef}
+        width={800}
+        height={600}
+        onMouseDown={handleMouseDown}
+        onMouseUp={handleMouseUp}
+        onMouseMove={handleMouseMove}
+        style={{ border: '2px solid black', marginBottom: '20px', opacity: 1 }}
+      />
+      <div style={{ display: 'flex', gap: '10px' }}>
+        <button onClick={saveTrack} style={buttonStyle}>
+          Save Track
         </button>
-      )}
+        <label style={buttonStyle}>
+          Load Track
+          <input type="file" onChange={loadTrack} style={{ display: 'none' }} />
+        </label>
+        <button onClick={resetTrack} style={buttonStyle}>
+          Reset
+        </button>
+        {showDriveButton && (
+          <button onClick={handleDriveCar} style={buttonStyle}>
+            Drive Car
+          </button>
+        )}
+      </div>
     </div>
-  </div>
   );
 };
 
