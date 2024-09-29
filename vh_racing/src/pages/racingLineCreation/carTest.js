@@ -119,6 +119,7 @@ const CarTest = () => {
   const [carImage, setCarImage] = useState(null); // State for the car image
   const [keys, setKeys] = useState({ ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false });
   const [lastTime, setLastTime] = useState(performance.now());
+  const [initialCarState, setInitialCarState] = useState(null); // Store initial car state
 
   const carRadius = track.streetDiameter / 4;
 
@@ -129,6 +130,7 @@ const CarTest = () => {
     img.onload = () => setCarImage(img);
   }, []);
 
+  // Draw the car and track
   useEffect(() => {
     const canvas = canvasRef.current;
     const ctx = canvas.getContext('2d');
@@ -138,28 +140,86 @@ const CarTest = () => {
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       track.draw(ctx);
 
-      // Draw the car image if a position is set and the image has loaded
       if (carPos && carImage && car) {
         const carWidth = carRadius * 4;
         const carHeight = carRadius * 3;
-
-        // Save the current context before transformation
         ctx.save();
-
-        // Translate context to the car position and rotate based on the car's angle
         ctx.translate(carPos[0], carPos[1]);
         ctx.rotate(car.angle); // Car's angle in radians
-
-        // Draw the car image centered around the car position
         ctx.drawImage(carImage, -carWidth / 2, -carHeight / 2, carWidth, carHeight);
-
-        // Restore the context after drawing
         ctx.restore();
       }
     };
 
     draw();
   }, [track, mousePos, isDrawing, carPos, carRadius, carImage, car]);
+
+  // Handle steering reset to zero when no keys are pressed
+  const resetSteering = (car, deltaTime) => {
+    if (car.steeringAngle > 0) {
+      car.updateSteering(-0.2, deltaTime); // Gradually reduce the angle
+    } else if (car.steeringAngle < 0) {
+      car.updateSteering(0.2, deltaTime); // Gradually increase the angle
+    }
+  };
+
+  // Reset the car to its initial spawn position and orientation
+  const resetCarToStart = () => {
+    if (car && initialCarState) {
+      car.positionX = initialCarState.positionX;
+      car.positionY = initialCarState.positionY;
+      car.velocity = 0;
+      car.angle = initialCarState.angle;
+      car.steeringAngle = 0;
+      setCarPos([initialCarState.positionX, initialCarState.positionY]);
+    }
+  };
+
+  useEffect(() => {
+    const now = performance.now();
+    const deltaTime = (now - lastTime) / 1000; // Calculate time difference in seconds
+    setLastTime(now);
+
+    if (car) {
+      let throttle = keys.ArrowUp ? 0.5 : 0;
+      let brake = keys.ArrowDown ? 0.5 : 0;
+      let steeringInput = keys.ArrowLeft ? -0.5 : keys.ArrowRight ? 0.5 : 0;
+
+      if (throttle > 0) {
+        car.applyThrottle(throttle, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
+      }
+
+      if (brake > 0) {
+        car.applyBrake(brake, deltaTime);
+      } else if (!keys.ArrowUp && !keys.ArrowDown) {
+        car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
+      }
+
+      if (steeringInput !== 0) {
+        car.updateSteering(steeringInput, deltaTime);
+      } else {
+        // Gradually return the steering angle to zero if no keys are pressed
+        resetSteering(car, deltaTime);
+      }
+
+      car.updatePosition(deltaTime);
+      const newCarPos = [car.getPositionX(), car.getPositionY()];
+
+      if (!track.isCarWithinTrack(newCarPos, carRadius)) {
+        resetCarToStart(); // Reset to start position and orientation if car goes off track
+      } else {
+        setCarPos(newCarPos);
+        checkpoints.forEach((checkpoint, idx) => {
+          const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
+          if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
+            setCurrentCheckpoint(checkpoint);
+          }
+        });
+      }
+    }
+  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
   const handleMouseDown = (event) => {
     if (!isDrawing && !trackDrawnYet) {
@@ -172,23 +232,11 @@ const CarTest = () => {
     }
   };
 
-  const handleMouseUp = (event) => {
-    if (isDrawing) {
-      setIsDrawing(false);
-      const rect = canvasRef.current.getBoundingClientRect();
-      const pos = [event.clientX - rect.left, event.clientY - rect.top];
-      track.addPoint(pos);
-      track.closeTrack();
-      setTrackDrawnYet(true);
-      setShowDriveButton(true);
-      setTrack((prevTrack) => {
-        const updatedTrack = new Track(prevTrack.streetDiameter);
-        updatedTrack.points = [...prevTrack.points];
-        setCheckpoints(updatedTrack.getCheckpoints());
-        setCurrentCheckpoint(updatedTrack.points[0]); // Ensure car spawns at the first checkpoint
-        return updatedTrack;
-      });
-    }
+  const handleMouseUp = () => {
+    setIsDrawing(false);
+    track.closeTrack();
+    setTrackDrawnYet(true);
+    setShowDriveButton(true);
   };
 
   const handleMouseMove = (event) => {
@@ -197,11 +245,6 @@ const CarTest = () => {
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
       setMousePos(pos);
       track.addPoint(pos);
-      setTrack((prevTrack) => {
-        const updatedTrack = new Track(prevTrack.streetDiameter);
-        updatedTrack.points = [...prevTrack.points];
-        return updatedTrack;
-      });
     }
   };
 
@@ -242,11 +285,12 @@ const CarTest = () => {
 
   const handleDriveCar = () => {
     if (track.points.length > 0) {
-      const initialAngle = track.getDirection(); // Get initial direction of the car
+      const initialAngle = track.getDirection();
       const car = new Car(MassCategory.Medium, TireType.Slick, track.points[0][0], track.points[0][1]);
-      car.angle = initialAngle; // Set car's initial angle based on the track direction
+      car.angle = initialAngle;
+      setInitialCarState({ positionX: car.positionX, positionY: car.positionY, angle: car.angle });
       setCar(car);
-      setCarPos(track.points[0]); // Set car at the first point (first checkpoint)
+      setCarPos(track.points[0]);
       setCurrentCheckpoint(track.points[0]);
     }
   };
@@ -259,49 +303,6 @@ const CarTest = () => {
   const handleKeyUp = (event) => {
     setKeys((prevKeys) => ({ ...prevKeys, [event.key]: false }));
   };
-
-  useEffect(() => {
-    const now = performance.now();
-    const deltaTime = (now - lastTime) / 1000; // Calculate time difference in seconds
-    setLastTime(now);
-
-    if (car) {
-      let throttle = keys.ArrowUp ? 0.5 : 0;
-      let brake = keys.ArrowDown ? 0.5 : 0;
-      let steeringInput = keys.ArrowLeft ? -0.5 : keys.ArrowRight ? 0.5 : 0;
-
-      if (throttle > 0) {
-        car.applyThrottle(throttle, deltaTime);
-      } else if (!keys.ArrowUp && !keys.ArrowDown) {
-        car.applyThrottle(0, deltaTime); // Maintain momentum when no throttle/brake
-      }
-
-      if (brake > 0) {
-        car.applyBrake(brake, deltaTime);
-      } else if (!keys.ArrowUp && !keys.ArrowDown) {
-        car.applyBrake(0.1, deltaTime); // Simulate friction to slow down gradually
-      }
-
-      if (steeringInput !== 0) {
-        car.updateSteering(steeringInput, deltaTime);
-      }
-
-      car.updatePosition(deltaTime);
-      const newCarPos = [car.getPositionX(), car.getPositionY()];
-
-      if (!track.isCarWithinTrack(newCarPos, carRadius)) {
-        setCarPos(currentCheckpoint); // Reset to checkpoint if car goes off track
-      } else {
-        setCarPos(newCarPos);
-        checkpoints.forEach((checkpoint, idx) => {
-          const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
-          if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
-            setCurrentCheckpoint(checkpoint);
-          }
-        });
-      }
-    }
-  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
