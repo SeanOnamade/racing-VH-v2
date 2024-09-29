@@ -27,7 +27,7 @@ const AuthPage: React.FC = () => {
       const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, formData);
       if (isLoginMode) {
         localStorage.setItem('token', res.data.token); // Save token on login
-        window.location.href = '/ethan';  // Redirect to ethan page
+        window.location.href = '/';  // Redirect to ethan page
       }
     } catch (error) {
       console.error('Error:', error);

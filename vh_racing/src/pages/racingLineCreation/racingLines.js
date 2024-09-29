@@ -253,7 +253,7 @@ const TrackDrawingApp = () => {
 
   const handleValidateTrack = () => { // ADDED
     saveTrack(); // Save the track file when validating
-    navigate('/ethan/validTrack');
+    navigate('/race');
   };
 
   return (

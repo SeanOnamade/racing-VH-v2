@@ -16,7 +16,7 @@ const SignOut: React.FC<SignOutProps> = ({ onSignOut }) => {
     onSignOut();
 
     // Redirect user to login page
-    navigate('/login'); 
+    navigate('/auth'); 
   };
 
   return (

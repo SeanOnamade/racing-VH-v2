@@ -17,7 +17,7 @@ const Login: React.FC = () => {
       const res = await axios.post('http://localhost:5000/api/auth/login', formData);
       console.log(res.data);
       localStorage.setItem('token', res.data.token);
-      window.location.href = '/ethan' // set route
+      window.location.href = '/' // set route
     } catch (error) {
       console.error(error);
     }
