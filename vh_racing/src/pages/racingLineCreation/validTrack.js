@@ -154,6 +154,10 @@ const ValidTrack = () => {
       };
 
       draw();
+
+
+
+      
     }
   }, [track, carPos, carImage, trackDrawnYet, car]);
 
@@ -260,7 +264,7 @@ const ValidTrack = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '20px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '0' }}>
       <canvas
         ref={canvasRef}
         width={originalWidth}
