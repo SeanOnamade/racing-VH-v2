@@ -82,7 +82,7 @@ const Navbar: React.FC = () => {
                 Valid Track
               </NavLink>
             </li>
-            <li>
+            <li className='text-white px-4 rounded hover:bg-gray-600'>
               <SignOut onSignOut={handleSignOut} />
             </li>
           </>
