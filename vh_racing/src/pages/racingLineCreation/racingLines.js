@@ -108,12 +108,10 @@ const TrackDrawingApp = () => {
       setIsDrawing(false);
       const rect = canvasRef.current.getBoundingClientRect();
       const pos = [event.clientX - rect.left, event.clientY - rect.top];
-<<<<<<< HEAD
+
       track.closeTrack();
-=======
       track.addPoint(pos); // Add the final point
       track.closeTrack(); // Close the track by connecting the last point to the first
->>>>>>> d93e1a5 (updated draw page)
       setTrackDrawnYet(true);
       setTrack(prevTrack => {
         const updatedTrack = new Track(prevTrack.streetDiameter);
