@@ -2,21 +2,31 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Car, MassCategory, TireType } from '../../components/Car.js';
 import Track from '../../components/Track.js';
 
-// Modular car creation function
+/**
+ * @definition createCar
+ * @params x, y, angle
+ * @returns Car object
+ * Creates a new car with the specified position and angle.
+ */
 const createCar = (x, y, angle) => {
   const car = new Car(MassCategory.Medium, TireType.Slick, x, y);
   car.angle = angle;
   return car;
 };
 
+/**
+ * @definition ValidTrack
+ * @params None
+ * @returns JSX.Element
+ * React component for drawing and interacting with a racing track and car using WASD controls.
+ */
 const ValidTrack = () => {
   const [fileName, setFileName] = useState('');
   const canvasRef = useRef(null);
   const originalWidth = 853;
   const originalHeight = 600;
-  const scaleFactor = 2; // Change this value to scale everything
+  const scaleFactor = 2;
 
-  // CAR STUFF
   const [track, setTrack] = useState(new Track());
   const [trackDrawnYet, setTrackDrawnYet] = useState(false);
   const [car, setCar] = useState(null);
@@ -27,26 +37,41 @@ const ValidTrack = () => {
   const [lastTime, setLastTime] = useState(performance.now());
   const [checkpoints, setCheckpoints] = useState([]);
   const [currentCheckpoint, setCurrentCheckpoint] = useState(null);
-  const [overlayImage, setOverlayImage] = useState(null); // State for the overlay image
-
+  const [overlayImage, setOverlayImage] = useState(null);
+  const [carSpeed, setCarSpeed] = useState(0); // State to track car speed
 
   const carRadius = track.streetDiameter / 4;
 
-  // Load car image from public folder
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Loads the car image from the public folder when the component mounts.
+   */
   useEffect(() => {
     const img = new Image();
     img.src = "/car.png";
     img.onload = () => setCarImage(img);
   }, []);
 
-  // Load overlay image from public folder
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Loads the overlay image from the public folder when the component mounts.
+   */
   useEffect(() => {
     const img = new Image();
-    img.src = "/wasd.png"; // Change to your overlay image path
+    img.src = "/wasd.png";
     img.onload = () => setOverlayImage(img);
   }, []);
 
-  // Load track from localStorage when component mounts
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Loads the track from localStorage when the component mounts.
+   */
   useEffect(() => {
     const savedTrack = localStorage.getItem('savedTrack');
     if (savedTrack) {
@@ -57,7 +82,12 @@ const ValidTrack = () => {
     }
   }, []);
 
-  // Add event listeners for keydown and keyup to capture car control inputs
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Adds event listeners for keydown and keyup to capture car control inputs.
+   */
   useEffect(() => {
     const handleKeyDown = (event) => {
       const key = event.key.toUpperCase();
@@ -80,6 +110,12 @@ const ValidTrack = () => {
     };
   }, []);
 
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Updates the car's position and physics based on key inputs.
+   */
   useEffect(() => {
     const now = performance.now();
     const deltaTime = (now - lastTime) / 1000;
@@ -111,6 +147,8 @@ const ValidTrack = () => {
       car.updatePosition(deltaTime);
       const newCarPos = [car.getPositionX(), car.getPositionY()];
 
+      setCarSpeed(car.getVelocity().toFixed(2)); // Update the car's speed
+
       if (!track.isCarWithinTrack(newCarPos, carRadius)) {
         resetCarToStart();
       } else {
@@ -125,7 +163,12 @@ const ValidTrack = () => {
     }
   }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
-  // Draw the track and car
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Draws the track and car on the canvas.
+   */
   useEffect(() => {
     if (trackDrawnYet && carImage) {
       const canvas = canvasRef.current;
@@ -135,23 +178,19 @@ const ValidTrack = () => {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         resizeCanvas();
 
-        // Calculate the translation vector
         const translationX = car ? -car.positionX + initialCarState.positionX : 0;
         const translationY = car ? -car.positionY + initialCarState.positionY : 0;
 
-        // Apply scaling
         ctx.save();
-        ctx.scale(scaleFactor, scaleFactor); // Scale everything
-        ctx.translate(translationX, translationY); // Translate to keep car in position
+        ctx.scale(scaleFactor, scaleFactor);
+        ctx.translate(translationX, translationY);
 
-        // Draw the track with a thicker stroke
-        ctx.lineWidth = 80; // Adjust this value to make the track thicker
-        track.drawScaled(ctx, 1); // Draw track without scaling since it's already scaled
+        ctx.lineWidth = 80;
+        track.drawScaled(ctx, 1);
 
-        // Draw the car only if it exists
         if (car && carPos) {
-          const carWidth = 30 * (scaleFactor * .8); // Use original dimensions
-          const carHeight = 20 * (scaleFactor * .8); // Use original dimensions
+          const carWidth = 30 * (scaleFactor * 0.8);
+          const carHeight = 20 * (scaleFactor * 0.8);
           ctx.save();
           ctx.translate(carPos[0], carPos[1]);
           ctx.rotate(car.angle);
@@ -159,30 +198,28 @@ const ValidTrack = () => {
           ctx.restore();
         }
 
-        ctx.restore(); // Restore the context after scaling
-        // Draw the overlay image in the bottom left
+        ctx.restore();
+
         if (overlayImage) {
-            const overlayWidth = 100; // Set desired width
-            const overlayHeight = 100; // Set desired height
-            ctx.save();
-            //ctx.globalAlpha = 0.5; // Set transparency
-            ctx.translate(-carPos[0], -carPos[1]);
-            ctx.drawImage(overlayImage, 0, canvas.height - overlayHeight, overlayWidth, overlayHeight);
-            ctx.restore();
+          const overlayWidth = 100;
+          const overlayHeight = 100;
+          ctx.save();
+          ctx.translate(-carPos[0], -carPos[1]);
+          ctx.drawImage(overlayImage, 0, canvas.height - overlayHeight, overlayWidth, overlayHeight);
+          ctx.restore();
         }
-
-
       };
 
       draw();
-
-
-
-      
     }
-  }, [track, carPos, carImage, trackDrawnYet, car]);
+  }, [track, carPos, carImage, trackDrawnYet, car, carSpeed]);
 
-  // Handle steering reset to zero when no keys are pressed
+  /**
+   * @definition resetSteering
+   * @params car, deltaTime
+   * @returns None
+   * Resets the car's steering angle to zero when no keys are pressed.
+   */
   const resetSteering = (car, deltaTime) => {
     if (car.steeringAngle > 0) {
       car.updateSteering(-0.2, deltaTime);
@@ -191,7 +228,12 @@ const ValidTrack = () => {
     }
   };
 
-  // Reset the car to its initial spawn position and orientation
+  /**
+   * @definition resetCarToStart
+   * @params None
+   * @returns None
+   * Resets the car to its initial spawn position and orientation.
+   */
   const resetCarToStart = () => {
     if (car && initialCarState) {
       car.positionX = initialCarState.positionX;
@@ -203,7 +245,12 @@ const ValidTrack = () => {
     }
   };
 
-  // Handle driving the car after the track is fully loaded
+  /**
+   * @definition handleDriveCar
+   * @params None
+   * @returns None
+   * Starts driving the car after the track is fully loaded.
+   */
   const handleDriveCar = () => {
     if (track.points.length > 1) {
       const startingPoint = track.points[0];
@@ -214,8 +261,8 @@ const ValidTrack = () => {
 
       const trackDirection = Math.atan2(dy, dx);
 
-      const scaledX = startingPoint[0]; // Use original dimensions
-      const scaledY = startingPoint[1]; // Use original dimensions
+      const scaledX = startingPoint[0];
+      const scaledY = startingPoint[1];
 
       const car = createCar(scaledX, scaledY, trackDirection);
       setInitialCarState({ positionX: car.positionX, positionY: car.positionY, angle: car.angle });
@@ -224,39 +271,38 @@ const ValidTrack = () => {
     }
   };
 
+  /**
+   * @definition loadTrack
+   * @params event
+   * @returns None
+   * Loads the track from the selected file.
+   */
   const loadTrack = (event) => {
     const file = event.target.files[0];
-    
+
     if (file) {
       setFileName(file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
         const data = JSON.parse(e.target.result);
-        
-        // Check if the file contains old or new format
+
         let loadedTrack;
         if (data && data.track) {
-          // Old format
-          console.log('Loaded track from file (old format):', data);
           loadedTrack = new Track(data.streetDiameter, data.track.map((point) => [point.x, point.y]));
         } else if (data && data.trackData && data.trackData.track) {
-          // New format
-          console.log('Loaded track from file (new format):', data);
           loadedTrack = new Track(data.trackData.streetDiameter, data.trackData.track.map((point) => [point.x, point.y]));
         } else {
           console.error('Invalid track data', data);
-          return; // Exit early if the format is invalid
+          return;
         }
-  
-        // Set the loaded track
+
         setTrack(loadedTrack);
         setTrackDrawnYet(false);
-  
-        setTrackDrawnYet(false);
+
         const canvas = canvasRef.current;
         const ctx = canvas.getContext('2d');
         resizeCanvas();
-        loadedTrack.drawScaled(ctx, 1); // Draw track without scaling since it's already scaled
+        loadedTrack.drawScaled(ctx, 1);
 
         setTimeout(() => {
           setTrackDrawnYet(true);
@@ -267,13 +313,24 @@ const ValidTrack = () => {
     }
   };
 
+  /**
+   * @definition useEffect
+   * @params None
+   * @returns None
+   * Drives the car once the track is drawn.
+   */
   useEffect(() => {
     if (trackDrawnYet) {
       handleDriveCar();
     }
   }, [trackDrawnYet]);
 
-  // Resize the canvas
+  /**
+   * @definition resizeCanvas
+   * @params None
+   * @returns None
+   * Resizes the canvas according to the original dimensions and scale factor.
+   */
   const resizeCanvas = () => {
     const canvas = canvasRef.current;
     canvas.width = originalWidth * scaleFactor;
@@ -285,7 +342,25 @@ const ValidTrack = () => {
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '0' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-start', padding: '0', position: 'relative' }}>
+      {/* Legend for controls and speed */}
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        left: '10px',
+        backgroundColor: 'rgba(0, 0, 0, 0.6)',
+        padding: '10px',
+        borderRadius: '5px',
+        color: 'white',
+        fontSize: '14px',
+      }}>
+        <p>W - Accelerate Forward</p>
+        <p>A - Turn Left</p>
+        <p>S - Slow Down</p>
+        <p>D - Turn Right</p>
+        <p>Speed: {carSpeed} m/s</p>
+      </div>
+
       <canvas
         ref={canvasRef}
         width={originalWidth}
@@ -303,7 +378,6 @@ const ValidTrack = () => {
       </div>
     </div>
   );
-  
 };
 
 const buttonStyle = {
