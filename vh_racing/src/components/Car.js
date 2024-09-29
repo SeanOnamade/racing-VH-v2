@@ -15,17 +15,22 @@ class SurfaceType {
     static Ice = 'Ice';
 }
 
+/**
+ * @definition Car
+ * @params mCat, tType, startX, startY
+ * @returns Car object
+ * Car class representing a vehicle with properties for mass category, tire type, position, and various physics-related attributes.
+ */
 class Car {
     constructor(mCat, tType, startX, startY) {
-        this.startX = startX;  // Store the initial starting X position
-        this.startY = startY;  // Store the initial starting Y position
-
+        this.startX = startX;
+        this.startY = startY;
         this.positionX = startX;
         this.positionY = startY;
         this.massCategory = mCat;
         this.tireType = tType;
         this.surfaceType = SurfaceType.Asphalt;
-        this.angle = 0.0;  // Initial orientation
+        this.angle = 0.0;
         this.velocity = 0.0;
         this.acceleration = 0.0;
         this.tireTemperature = 20.0;
@@ -38,7 +43,6 @@ class Car {
         this.setMassCategory(mCat);
         this.setTireType(tType);
 
-        // Increase max speed and acceleration for faster movement
         if (mCat === MassCategory.Light && tType === TireType.Slick) {
             this.maxVelocity = 500.0;
         } else if (mCat === MassCategory.Medium && tType === TireType.Slick) {
@@ -58,11 +62,16 @@ class Car {
         this.maxSteeringAngle = this.degToRad(45);
         this.steeringSpeed = this.degToRad(60);
     }
-    
 
+    /**
+     * @definition setMassCategory
+     * @params mCat
+     * @returns None
+     * Sets the mass of the car based on its mass category.
+     */
     setMassCategory(mCat) {
         if (mCat === MassCategory.Light) {
-            this.mass = 1800.0 * 0.453592; // Convert to kg
+            this.mass = 1800.0 * 0.453592;
         } else if (mCat === MassCategory.Medium) {
             this.mass = 2800.0 * 0.453592;
         } else if (mCat === MassCategory.Heavy) {
@@ -70,6 +79,12 @@ class Car {
         }
     }
 
+    /**
+     * @definition setTireType
+     * @params tType
+     * @returns None
+     * Sets the base tire grip based on the tire type.
+     */
     setTireType(tType) {
         if (tType === TireType.Rain) {
             this.baseTireGrip = 0.7;
@@ -79,6 +94,12 @@ class Car {
         this.tireGrip = this.baseTireGrip;
     }
 
+    /**
+     * @definition setCorneringStiffness
+     * @params None
+     * @returns None
+     * Sets the cornering stiffness values for the front and rear tires based on tire type.
+     */
     setCorneringStiffness() {
         let baseStiffness;
         if (this.tireType === TireType.Slick) {
@@ -91,6 +112,12 @@ class Car {
         this.Cr = baseStiffness * 0.4;
     }
 
+    /**
+     * @definition calculateUndersteerGradient
+     * @params None
+     * @returns Number
+     * Calculates and returns the understeer gradient based on car weight distribution and cornering stiffness.
+     */
     calculateUndersteerGradient() {
         const Wf = this.mass * 0.6;
         const Wr = this.mass * 0.4;
@@ -98,6 +125,12 @@ class Car {
         return K;
     }
 
+    /**
+     * @definition applyThrottle
+     * @params throttle, deltaTime
+     * @returns None
+     * Applies throttle to the car, increasing its velocity.
+     */
     applyThrottle(throttle, deltaTime) {
         const maxAcceleration = 90.0;
         let acceleration = throttle * maxAcceleration * this.traction * (1 - this.velocity / this.maxVelocity);
@@ -105,12 +138,16 @@ class Car {
         this.acceleration = acceleration;
         this.velocity += this.acceleration * deltaTime;
         if (this.velocity > this.maxVelocity) this.velocity = this.maxVelocity;
-
-        //console.log(`Throttle: ${throttle}, Acceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
     }
 
+    /**
+     * @definition applyBrake
+     * @params brakeForce, deltaTime
+     * @returns None
+     * Applies brakes to the car, reducing its velocity.
+     */
     applyBrake(brakeForce, deltaTime) {
-        const maxDeceleration = 60.0;  // Increased deceleration
+        const maxDeceleration = 60.0;
         const deceleration = brakeForce * maxDeceleration * this.traction;
         this.acceleration = -deceleration;
         this.velocity += this.acceleration * deltaTime;
@@ -118,10 +155,14 @@ class Car {
             this.velocity = 0.0;
             this.acceleration = 0.0;
         }
-
-        //console.log(`Brake: ${brakeForce}, Deceleration: ${this.acceleration}, Velocity: ${this.velocity}, Position: (${this.positionX}, ${this.positionY})`);
     }
 
+    /**
+     * @definition updateSteering
+     * @params steeringInput, deltaTime
+     * @returns None
+     * Updates the steering angle of the car based on steering input.
+     */
     updateSteering(steeringInput, deltaTime) {
         this.steeringAngle += steeringInput * this.steeringSpeed * deltaTime;
         if (this.steeringAngle > this.maxSteeringAngle) {
@@ -129,10 +170,14 @@ class Car {
         } else if (this.steeringAngle < -this.maxSteeringAngle) {
             this.steeringAngle = -this.maxSteeringAngle;
         }
-
-        //console.log(`Steering input: ${steeringInput}, Steering angle (deg): ${this.radToDeg(this.steeringAngle)}`);
     }
 
+    /**
+     * @definition updatePosition
+     * @params deltaTime
+     * @returns None
+     * Updates the car's position based on its velocity and steering angle.
+     */
     updatePosition(deltaTime) {
         const rollingResistance = 12.0;
         const dragCoefficient = 0.4257;
@@ -167,10 +212,14 @@ class Car {
             this.updateTireTemperature(deltaTime);
             this.applyTireStress(this.steeringAngle, this.velocity, deltaTime);
         }
-
-        //console.log(`Updated position: (${this.positionX}, ${this.positionY}), Velocity: ${this.velocity}, Steering angle: ${this.radToDeg(this.steeringAngle)}`);
     }
 
+    /**
+     * @definition updateTireTemperature
+     * @params deltaTime
+     * @returns None
+     * Updates the tire temperature based on steering angle and velocity.
+     */
     updateTireTemperature(deltaTime) {
         const tempIncrease = (Math.abs(this.steeringAngle) + 0.1) * this.velocity * 0.05 * deltaTime;
         const tempDecrease = (this.tireTemperature - 20.0) * 0.1 * deltaTime;
@@ -180,6 +229,12 @@ class Car {
         }
     }
 
+    /**
+     * @definition updateTireGrip
+     * @params None
+     * @returns None
+     * Updates the tire grip based on temperature, speed, and steering angle.
+     */
     updateTireGrip() {
         const optimalTemp = 90.0;
         const tempDifference = Math.abs(this.tireTemperature - optimalTemp);
@@ -192,10 +247,14 @@ class Car {
         if (this.tireGrip < this.minTireGrip) {
             this.tireGrip = this.minTireGrip;
         }
-
-        //console.log(`Tire temperature: ${this.tireTemperature}, Tire grip: ${this.tireGrip}`);
     }
 
+    /**
+     * @definition applyTireStress
+     * @params steeringAngle, velocity, deltaTime
+     * @returns None
+     * Applies stress to the tires based on steering angle and velocity, decaying the tire grip.
+     */
     applyTireStress(steeringAngle, velocity, deltaTime) {
         const stressFactor = (Math.abs(steeringAngle) + 0.1) * velocity;
         const decayAmount = stressFactor * this.gripDecayRate * deltaTime;
@@ -205,49 +264,107 @@ class Car {
         }
     }
 
-    // Reset the car state to its starting position and orientation
+    /**
+     * @definition resetState
+     * @params None
+     * @returns None
+     * Resets the car to its initial starting position and orientation.
+     */
     resetState() {
         this.positionX = this.startX;
         this.positionY = this.startY;
         this.velocity = 0.0;
         this.acceleration = 0.0;
         this.steeringAngle = 0.0;
-        this.angle = 0.0; // Reset orientation
+        this.angle = 0.0;
     }
 
-    // Utility methods for angle conversion
+    /**
+     * @definition degToRad
+     * @params deg
+     * @returns Number
+     * Converts degrees to radians.
+     */
     degToRad(deg) {
         return deg * (Math.PI / 180);
     }
 
+    /**
+     * @definition radToDeg
+     * @params rad
+     * @returns Number
+     * Converts radians to degrees.
+     */
     radToDeg(rad) {
         return rad * (180 / Math.PI);
     }
 
+    /**
+     * @definition getPositionX
+     * @params None
+     * @returns Number
+     * Returns the car's X position.
+     */
     getPositionX() {
         return this.positionX;
     }
 
+    /**
+     * @definition getPositionY
+     * @params None
+     * @returns Number
+     * Returns the car's Y position.
+     */
     getPositionY() {
         return this.positionY;
     }
 
+    /**
+     * @definition getVelocity
+     * @params None
+     * @returns Number
+     * Returns the car's velocity.
+     */
     getVelocity() {
         return this.velocity;
     }
 
+    /**
+     * @definition getAcceleration
+     * @params None
+     * @returns Number
+     * Returns the car's acceleration.
+     */
     getAcceleration() {
         return this.acceleration;
     }
 
+    /**
+     * @definition getTireGrip
+     * @params None
+     * @returns Number
+     * Returns the car's tire grip.
+     */
     getTireGrip() {
         return this.tireGrip;
     }
 
+    /**
+     * @definition getTireTemperature
+     * @params None
+     * @returns Number
+     * Returns the car's tire temperature.
+     */
     getTireTemperature() {
         return this.tireTemperature;
     }
 
+    /**
+     * @definition getSteeringAngleDegrees
+     * @params None
+     * @returns Number
+     * Returns the steering angle in degrees.
+     */
     getSteeringAngleDegrees() {
         return this.radToDeg(this.steeringAngle);
     }
