@@ -1,19 +1,23 @@
 from enum import Enum
 import math
 
+
 class MassCategory(Enum):
     Light = 0
     Medium = 1
     Heavy = 2
 
+
 class TireType(Enum):
     Rain = 0
     Slick = 1
+
 
 class SurfaceType(Enum):
     Asphalt = 0
     Gravel = 1
     Ice = 2
+
 
 class Car:
     def __init__(self, mCat, tType, startX, startY):
@@ -92,6 +96,10 @@ class Car:
         if self.velocity > self.maxVelocity:
             self.velocity = self.maxVelocity
 
+        # Debug statement for throttle application
+        print(
+            f"Throttle: {throttle}, Acceleration: {self.acceleration}, Velocity: {self.velocity}, Position: ({self.positionX}, {self.positionY})")
+
     def applyBrake(self, brakeForce, deltaTime):
         maxDeceleration = 50.0
         deceleration = brakeForce * maxDeceleration * self.traction
@@ -101,6 +109,10 @@ class Car:
             self.velocity = 0.0
             self.acceleration = 0.0
 
+        # Debug statement for brake application
+        print(
+            f"Brake: {brakeForce}, Deceleration: {self.acceleration}, Velocity: {self.velocity}, Position: ({self.positionX}, {self.positionY})")
+
     def updateSteering(self, steeringInput, deltaTime):
         self.steering_angle += steeringInput * self.steering_speed * deltaTime
         if self.steering_angle > self.max_steering_angle:
@@ -108,12 +120,15 @@ class Car:
         elif self.steering_angle < -self.max_steering_angle:
             self.steering_angle = -self.max_steering_angle
 
+        # Debug statement for steering input
+        print(f"Steering input: {steeringInput}, Steering angle (deg): {math.degrees(self.steering_angle)}")
+
     def updatePosition(self, deltaTime):
         rollingResistance = 12.0
         dragCoefficient = 0.4257
         airDensity = 1.225
         frontalArea = 2.2
-        dragForce = 0.5 * dragCoefficient * airDensity * frontalArea * self.velocity**2
+        dragForce = 0.5 * dragCoefficient * airDensity * frontalArea * self.velocity ** 2
 
         totalResistance = (rollingResistance + dragForce) / self.mass
         self.velocity -= totalResistance * deltaTime
@@ -150,6 +165,10 @@ class Car:
             self.updateTireTemperature(deltaTime)
             self.applyTireStress(self.steering_angle, self.velocity, deltaTime)
 
+        # Debug statement for position update
+        print(
+            f"Updated position: ({self.positionX}, {self.positionY}), Velocity: {self.velocity}, Steering angle: {math.degrees(self.steering_angle)}")
+
         if abs(self.steering_angle) > 0:
             steeringReturnSpeed = math.radians(30)
             steeringReturn = steeringReturnSpeed * deltaTime
@@ -176,6 +195,9 @@ class Car:
         self.tireGrip = self.base_tireGrip * temperatureEffect * speedEffect * steeringEffect
         if self.tireGrip < self.minTireGrip:
             self.tireGrip = self.minTireGrip
+
+        # Debug statement for tire grip
+        print(f"Tire temperature: {self.tireTemperature}, Tire grip: {self.tireGrip}")
 
     def applyTireStress(self, steeringAngle, velocity, deltaTime):
         stressFactor = (abs(steeringAngle) + 0.1) * velocity

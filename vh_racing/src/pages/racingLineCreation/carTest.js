@@ -231,37 +231,7 @@ const CarTest = () => {
         steeringInput = 1.0;
       }
 
-      // Send the control data to Flask backend
-      const sendCarState = (action, data) => {
-        fetch(`http://127.0.0.1:5000/api/${action}`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(data),
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            console.log('API response:', data);
-            const newCarPos = [data.positionX, data.positionY];
-
-            if (!track.isCarWithinTrack(newCarPos, carRadius)) {
-              // If car is outside the track, reset to last checkpoint
-              setCarPos(currentCheckpoint);
-            } else {
-              setCarPos(newCarPos);
-
-              // Check if we have passed a checkpoint
-              checkpoints.forEach((checkpoint, idx) => {
-                const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
-                if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
-                  setCurrentCheckpoint(checkpoint);
-                }
-              });
-            }
-          })
-          .catch((err) => {
-            console.error('API request failed:', err);
-          });
-      };
+      console.log(`Key pressed: ${event.key}, Throttle: ${throttle}, Brake: ${brake}, Steering: ${steeringInput}`);
 
       if (throttle > 0) {
         sendCarState('apply_throttle', { throttle, deltaTime });
@@ -282,6 +252,39 @@ const CarTest = () => {
       window.removeEventListener('keydown', handleKeyDown);
     };
   }, [carPos, currentCheckpoint, checkpoints, track]);
+
+  const sendCarState = (action, data) => {
+    fetch(`http://127.0.0.1:5000/api/${action}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        console.log(`Action: ${action}, Response:`, data); // Log the API response
+        const newCarPos = [data.positionX, data.positionY];
+        console.log(`New car position: ${newCarPos}, Current velocity: ${data.velocity}`);
+
+        if (!track.isCarWithinTrack(newCarPos, carRadius)) {
+          console.log('Car went off track. Resetting to last checkpoint.');
+          setCarPos(currentCheckpoint);
+        } else {
+          setCarPos(newCarPos);
+
+          // Check if we have passed a checkpoint
+          checkpoints.forEach((checkpoint, idx) => {
+            const distanceToCheckpoint = Math.hypot(newCarPos[0] - checkpoint[0], newCarPos[1] - checkpoint[1]);
+            if (distanceToCheckpoint < track.streetDiameter && idx > 0) {
+              setCurrentCheckpoint(checkpoint);
+              console.log(`Passed checkpoint ${idx}, New checkpoint: ${checkpoint}`);
+            }
+          });
+        }
+      })
+      .catch((err) => {
+        console.error('API request failed:', err);
+      });
+  };
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', padding: '20px' }}>
