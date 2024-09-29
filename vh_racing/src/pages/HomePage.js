@@ -41,7 +41,7 @@ const HomePage = () => {
         </p>
 
         <div className="flex space-x-4 mt-12">
-          <a href="/about" className="px-6 py-3 bg-blue-500 top-1/3 text-white rounded-lg hover:bg-blue-600 transition">
+          <a href="/auth" className="px-6 py-3 bg-blue-500 top-1/3 text-white rounded-lg hover:bg-blue-600 transition">
             Register to Race!!
           </a>
         </div>
