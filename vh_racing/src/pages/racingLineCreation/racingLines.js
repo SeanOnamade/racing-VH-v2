@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 
 // Track class definition
 class Track {
-  constructor(streetDiameter = 20, points = []) {
+  constructor(streetDiameter = 50, points = []) {
     this.points = points; // Initialize with passed points
     this.drawing = false; // Flag for drawing state
     this.streetDiameter = streetDiameter; // Diameter of the street
