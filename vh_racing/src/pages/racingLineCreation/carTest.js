@@ -123,7 +123,7 @@ const CarTest = () => {
         });
       }
     }
-  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime, carRadius]);
+  }, [keys, car, carPos, currentCheckpoint, checkpoints, track, lastTime]);
 
   const handleMouseDown = (event) => {
     if (!isDrawing && !trackDrawnYet) {
