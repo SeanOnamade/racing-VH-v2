@@ -1,0 +1,33 @@
+/* Navbar.css */
+.navbar {
+    background-color: #333;
+    padding: 1rem;
+  }
+  
+  .navbar ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .navbar ul li {
+    display: inline;
+  }
+  
+  .navbar ul li a {
+    color: white;
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+  }
+  
+  .navbar ul li a.active {
+    background-color: #555;
+  }
+  
+  .navbar ul li a:hover {
+    background-color: #777;
+  }
+  

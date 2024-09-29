@@ -8,11 +8,13 @@ import { Sign } from 'crypto';
 import RacingLines from './pages/racingLineCreation/racingLines';
 import ValidTrack from './pages/racingLineCreation/validTrack';
 import CarTest from './pages/racingLineCreation/carTest';
+import Navbar from './components/Navbar';  // Import the Navbar component
 
 // Main App component
 const App:React.FC = () => {
   return (
     <Router>
+      <Navbar />
       <Routes>
         {/* Default Route - Home Page */}
         <Route
