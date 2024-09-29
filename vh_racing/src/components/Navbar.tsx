@@ -50,7 +50,7 @@ const Navbar: React.FC = () => {
               `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
             }
           >
-            Ethan's Page
+            Draw
           </NavLink>
         </li>
 
@@ -72,22 +72,12 @@ const Navbar: React.FC = () => {
           <>
             <li>
               <NavLink 
-                to="/zander" 
-                className={({ isActive }) => 
-                  `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
-                }
-              >
-                Zander's Page
-              </NavLink>
-            </li>
-            <li>
-              <NavLink 
                 to="/ethan/validTrack" 
                 className={({ isActive }) => 
                   `text-white px-4 py-2 rounded ${isActive ? "bg-gray-700" : "hover:bg-gray-600"}`
                 }
               >
-                Valid Track
+                Race
               </NavLink>
             </li>
             <li>
