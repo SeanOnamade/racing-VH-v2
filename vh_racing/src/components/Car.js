@@ -17,12 +17,15 @@ class SurfaceType {
 
 class Car {
     constructor(mCat, tType, startX, startY) {
+        this.startX = startX;  // Store the initial starting X position
+        this.startY = startY;  // Store the initial starting Y position
+
         this.positionX = startX;
         this.positionY = startY;
         this.massCategory = mCat;
         this.tireType = tType;
         this.surfaceType = SurfaceType.Asphalt;
-        this.angle = 0.0;
+        this.angle = 0.0;  // Initial orientation
         this.velocity = 0.0;
         this.acceleration = 0.0;
         this.tireTemperature = 20.0;
@@ -35,16 +38,17 @@ class Car {
         this.setMassCategory(mCat);
         this.setTireType(tType);
 
+        // Increase max speed and acceleration for faster movement
         if (mCat === MassCategory.Light && tType === TireType.Slick) {
-            this.maxVelocity = 200.0;
+            this.maxVelocity = 500.0;
         } else if (mCat === MassCategory.Medium && tType === TireType.Slick) {
-            this.maxVelocity = 180.0;
+            this.maxVelocity = 480.0;
         } else if (mCat === MassCategory.Heavy && tType === TireType.Slick) {
-            this.maxVelocity = 160.0;
+            this.maxVelocity = 460.0;
         } else if (tType === TireType.Rain) {
-            this.maxVelocity = 140.0;
+            this.maxVelocity = 440.0;
         } else {
-            this.maxVelocity = 180.0;
+            this.maxVelocity = 480.0;
         }
 
         this.wheelbase = 2.5;
@@ -94,7 +98,7 @@ class Car {
     }
 
     applyThrottle(throttle, deltaTime) {
-        const maxAcceleration = 30.0;
+        const maxAcceleration = 90.0;
         let acceleration = throttle * maxAcceleration * this.traction * (1 - this.velocity / this.maxVelocity);
         if (acceleration < 0) acceleration = 0;
         this.acceleration = acceleration;
@@ -105,7 +109,7 @@ class Car {
     }
 
     applyBrake(brakeForce, deltaTime) {
-        const maxDeceleration = 50.0;
+        const maxDeceleration = 60.0;  // Increased deceleration
         const deceleration = brakeForce * maxDeceleration * this.traction;
         this.acceleration = -deceleration;
         this.velocity += this.acceleration * deltaTime;
@@ -198,6 +202,16 @@ class Car {
         if (this.tireGrip < this.minTireGrip) {
             this.tireGrip = this.minTireGrip;
         }
+    }
+
+    // Reset the car state to its starting position and orientation
+    resetState() {
+        this.positionX = this.startX;
+        this.positionY = this.startY;
+        this.velocity = 0.0;
+        this.acceleration = 0.0;
+        this.steeringAngle = 0.0;
+        this.angle = 0.0; // Reset orientation
     }
 
     // Utility methods for angle conversion
