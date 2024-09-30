@@ -149,8 +149,6 @@ Draw a custom racetrack using the drawing tool, and race on it!
 <!-- ROADMAP -->
 ## Roadmap
 
-Here are the significant changes I made from the original, which was created by [Siko91](https://github.com/Siko91/tf2-weapon-generator):
-
 - [X] Working authentication with MongoDB
 - [X] Track drawing functionality, saving tracks as JSONs with coordinates
 - [X] Tracks can be downloaded and saved as jsons
