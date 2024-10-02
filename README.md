@@ -27,10 +27,13 @@
 -->
 
 <!-- PROJECT LOGO -->
-<h3 align="center">Doodle Racing</h3>
+<div align="center">
+    <img src="https://github.com/zander-raycraft/racing-VH/blob/main/vh_racing/public/f1car.png" width="300">
+</div>
+<h1 align="center">Doodle Racing</h1>
 
   <p align="center">
-    An application that allows users to draw custom race tracks and rece them!
+    An application that allows users to draw custom racetracks and test them out for themselves! Built @ VandyHacksXI!
     <br />
     <br />
     <a href="https://github.com/SeanOnamade/repo_name"><strong>Explore the docs »</strong></a>
@@ -52,16 +55,14 @@
     <li>
       <a href="#getting-started">Getting Started</a>
       <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
         <li><a href="#installation">Installation</a></li>
       </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
+    <li><a href="#usage-and-demo">Usage and Demo</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
 <!--     <li><a href="#contributing">Contributing</a></li> -->
     <li><a href="#license">License</a></li>
     <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
@@ -77,13 +78,24 @@ Doodle Racing is a fun application that lets users create, save, and race on cus
 
 ### Built With
 
+<div align="center">
+  
 ![GitHub Fork](https://img.shields.io/badge/Code-Html5-orange?logo=html5&logoColor=orange)
 ![GitHub Fork](https://img.shields.io/badge/Code-JavaScript-yellow?logo=javascript&logoColor=yellow)
 ![GitHub Fork](https://img.shields.io/badge/Code-TypeScript-lightblue?logo=typescript&logoColor=lightblue)
 
-![GitHub Fork](https://img.shields.io/badge/Framework-Flask-red?logo=flask&logoColor=red)
-![GitHub Fork](https://img.shields.io/badge/Framework-React.js-teal?logo=react&logoColor=lightblue)
+![CSS](https://img.shields.io/badge/Style-CSS-1572B6?logo=css3&logoColor=white)
 ![GitHub Fork](https://img.shields.io/badge/Style-Tailwind-06B6D4?logo=tailwindcss&logoColor=white)
+
+![GitHub Fork](https://img.shields.io/badge/Framework-React.js-teal?logo=react&logoColor=lightblue)
+![GitHub Fork](https://img.shields.io/badge/Framework-Flask-red?logo=flask&logoColor=red)
+![Express.js](https://img.shields.io/badge/Framework-Express.js-6A5ACD?logo=express&logoColor=white)
+
+![Node.js](https://img.shields.io/badge/Backend-Node.js-339933?logo=nodedotjs&logoColor=white)
+
+![MongoDB](https://img.shields.io/badge/Database-MongoDB-brightgreen?logo=mongodb&logoColor=white)
+</div>
+
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -128,9 +140,9 @@ To get a local copy up and running follow these simple example steps.
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Usage and Demo
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot2.png)
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/appdemo.gif)
 
 Draw a custom racetrack using the drawing tool, and race on it!
 - Signup on the Signup/Login page
@@ -140,6 +152,7 @@ Draw a custom racetrack using the drawing tool, and race on it!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot2.png)
 
 <!-- ROADMAP -->
 ## Roadmap
