@@ -254,26 +254,70 @@ const TrackDrawingApp = () => {
    * @returns None
    * Loads a track from the selected file.
    */
-  const loadTrackFromDB = (event) => {
-    const trackData = event.target.files[0];
-
-    if (trackData) {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const data = JSON.parse(e.target.result);
-
-        if (data && data.track) {
-          const loadedTrack = new Track(data.streetDiameter, data.track.map(point => [point.x, point.y]));
-          setTrack(loadedTrack);
-          setTrackDrawnYet(true);
-          setSavedYet(true);
-        } else {
-          console.error('Invalid track data', data);
-        }
-      };
-      reader.readAsText(trackData);
+  const loadTrackFromDB = (trackData) => {
+    if (!trackData) {
+      console.error('No track data provided');
+      return;
+    }
+  
+    try {
+      // Check if trackData is in old or new format
+      if (trackData && trackData.track) {
+        // Old format
+        console.log('Loaded trackData from DB (old format):', trackData);
+        const loadedTrack = new Track(
+          trackData.streetDiameter || 20, // Default streetDiameter if not provided
+          trackData.track.map(point => [point.x, point.y]) // Map track points
+        );
+        setTrack(loadedTrack);
+        setTrackDrawnYet(true);
+        setSavedYet(true);
+      } else if (trackData && trackData.trackData && trackData.trackData.track) {
+        // New format
+        console.log('Loaded trackData from DB (new format):', trackData);
+        const loadedTrack = new Track(
+          trackData.trackData.streetDiameter || 20,
+          trackData.trackData.track.map(point => [point.x, point.y])
+        );
+        setTrack(loadedTrack);
+        setTrackDrawnYet(true);
+        setSavedYet(true);
+      } else {
+        console.error('Invalid track data', trackData);
+      }
+    } catch (error) {
+      console.error('Failed to load track data:', error);
     }
   };
+  
+
+  const loadTrackFromFile = (event) => {
+    const file = event.target.files[0];
+  
+    if (!file) {
+      console.error("No file selected");
+      return;
+    }
+    console.log("Uploading track!");
+  
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const trackData = JSON.parse(e.target.result);
+        loadTrackFromDB(trackData); // Reuse the loadTrackFromDB function
+      } catch (error) {
+        console.error('Failed to parse track data:', error);
+      }
+    };
+  
+    reader.onerror = () => {
+      console.error("Error reading file");
+    };
+  
+    reader.readAsText(file);
+  };
+  
+  
 
   /**
    * @definition resetTrack
@@ -324,7 +368,7 @@ const TrackDrawingApp = () => {
             </button>
             <label className="transition ease-in-out duration-150 hover:opacity-75" style={buttonStyle}>
               Load Track
-              <input type="file" onChange={loadTrackFromDB} style={{ display: 'none' }} />
+              <input type="file" onChange={loadTrackFromFile} style={{ display: 'none' }} />
             </label>
             <button className="hover:opacity-75" onClick={resetTrack} style={{
               backgroundColor: 'green',
@@ -338,7 +382,6 @@ const TrackDrawingApp = () => {
               paddingTop: '1.25rem',
               paddingBottom: '1.25rem',
               marginTop: '0.25rem',
-              textAlign: 'center',
             }}>Reset</button>
             <button className="hover:opacity-75" onClick={handleValidateTrack} style={buttonStyle}>Validate Track</button>
           </div>

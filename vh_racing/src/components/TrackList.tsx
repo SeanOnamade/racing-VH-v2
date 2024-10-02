@@ -88,7 +88,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
           tracks.map(track => (
             <li key={track._id} className="flex flex-col items-center mb-4">
                 <div className="flex flex-col sm:flex-row justify-center items-center space-y-2 sm:space-y-0 sm:space-x-2">
-                    <button className="text-sm bg-blue-500 text-white py-2 px-4 rounded-lg transition ease-in-out opacity-90 duration-150 hover:bg-slate-400" onClick={() => loadTrack({ target: { files: [track.trackData] } })}>
+                    <button className="text-sm bg-blue-500 text-white py-2 px-4 rounded-lg transition ease-in-out opacity-90 duration-150 hover:bg-slate-400" onClick={() => loadTrack(track.trackData)}>
                         Load Track #{track._id}
                     </button>
                     <button
