@@ -4,9 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build": "npx tsc",
-    "start": "node dist/server.js",
-    "heroku-postbuild": "npm run build"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",
