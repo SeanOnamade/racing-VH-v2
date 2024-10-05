@@ -15,7 +15,7 @@ const Signup: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
+      const res = await axios.post('https://doodle-racing-backend-a89d3ccd265c.herokuapp.com/api/auth/signup', formData);
       console.log(res.data);
     } catch (error) {
       console.error(error);

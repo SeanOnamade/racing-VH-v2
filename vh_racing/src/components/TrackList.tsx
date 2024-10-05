@@ -32,7 +32,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
 
 
       try {
-        const res = await axios.get('http://localhost:5000/api/tracks/load', {
+        const res = await axios.get('https://doodle-racing-backend-a89d3ccd265c.herokuapp.com/api/tracks/load', { // was localhost:5000/api/tracks/load
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -66,7 +66,7 @@ const TrackList: React.FC<TracklistProps> = ({ loadTrack, reloadTracks }) => {
   const deleteTrack = async (trackId: string) => {
     const token = localStorage.getItem('token');
     try {
-      await axios.delete(`http://localhost:5000/api/tracks/delete/${trackId}`, {
+      await axios.delete(`https://doodle-racing-backend-a89d3ccd265c.herokuapp.com/api/tracks/delete/${trackId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
