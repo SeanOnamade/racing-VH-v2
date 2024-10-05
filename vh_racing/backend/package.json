@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "node dist/server.js" 
+    "start": "node dist/server.js",
+    "heroku-postbuild": "npm run build"
   },
   "keywords": [],
   "author": "",
