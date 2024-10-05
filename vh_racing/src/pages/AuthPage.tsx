@@ -24,7 +24,7 @@ const AuthPage: React.FC = () => {
     e.preventDefault();
     try {
       const endpoint = isLoginMode ? 'login' : 'signup';
-      const res = await axios.post(`http://localhost:5000/api/auth/${endpoint}`, formData);
+      const res = await axios.post(`https://doodle-racing-backend-a89d3ccd265c.herokuapp.com/api/auth/${endpoint}`, formData);
       if (isLoginMode) {
         localStorage.setItem('token', res.data.token); // Save token on login
         window.location.href = '/';  // Redirect to ethan page
