@@ -28,7 +28,7 @@
 
 <!-- PROJECT LOGO -->
 <div align="center">
-    <img src="https://github.com/zander-raycraft/racing-VH/blob/main/vh_racing/public/f1car.png" width="300">
+    <img src="https://github.com/seanonamade/racing-vh-v2/blob/main/vh_racing/public/f1car.png" width="300">
 </div>
 <h1 align="center">Doodle Racing</h1>
 
@@ -69,7 +69,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot1.png)
+![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot1.png)
 
 Doodle Racing is a fun application that lets users create, save, and race on custom-designed tracks. It’s designed to allow players to draw their racetrack with a flexible drawing tool and simulate racing on these tracks.
 
@@ -109,7 +109,7 @@ To get a local copy up and running follow these simple example steps.
 
 1. Clone the repo
    ```sh
-   git clone https://github.com/zander-raycraft/racing-VH.git
+   git clone https://github.com/seanonamade/racing-vh-v2.git
    ```
 2. Install NPM packages
    ```sh
@@ -142,7 +142,7 @@ To get a local copy up and running follow these simple example steps.
 <!-- USAGE EXAMPLES -->
 ## Usage and Demo
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/appdemo.gif)
+![Gif Demo](https://github.com/seanonamade/racing-vh-v2/blob/main/appdemo.gif)
 
 Draw a custom racetrack using the drawing tool, and race on it!
 - Signup on the Signup/Login page
@@ -152,7 +152,7 @@ Draw a custom racetrack using the drawing tool, and race on it!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot2.png)
+![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot2.png)
 
 <!-- ROADMAP -->
 ## Roadmap
@@ -168,13 +168,11 @@ Draw a custom racetrack using the drawing tool, and race on it!
 - [X] Tracks can be raced with a camera following the user
 - [X] Racing controls display instructions and acceleration
 
-![Gif Demo](https://github.com/zander-raycraft/racing-VH/blob/main/appdemo.gif)
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot3.png)
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot4.png)
-![Screenshot](https://github.com/zander-raycraft/racing-VH/blob/main/Screenshot5.png)
+![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot3.png)
+![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot4.png)
+![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot5.png)
 
 
 
