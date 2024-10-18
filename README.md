@@ -71,7 +71,7 @@
 
 ![Screenshot](https://github.com/seanonamade/racing-vh-v2/blob/main/Screenshot1.png)
 
-Doodle Racing is a fun application that lets users create, save, and race on custom-designed tracks. It’s designed to allow players to draw their racetrack with a flexible drawing tool and simulate racing on these tracks.
+Doodle Racing is an app that allows users to create, save, and race on custom-designed 2D racetracks, using user authentication, a flexible track drawing tool, and physics-based simulation.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
